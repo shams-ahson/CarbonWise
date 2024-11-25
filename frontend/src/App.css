@@ -16,3 +16,23 @@
 body {
   background-color: #CAD9AC;
 }
+
+h1 {
+  font-family: 'Lilita One', sans-serif;
+  font-weight: 100;
+  color: #608A33;
+  text-shadow: 0px 1.5px 2px rgba(0, 0, 0, 0.3); /* Text shadow */
+}
+
+.centered-container {
+  margin-left: 64px;
+  margin-right: 64px;
+  display: flex;
+  flex-direction: column;
+  justify-content: top;
+  align-items: center;
+}
+
+.title {
+  font-size: 80px;
+}
