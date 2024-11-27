@@ -2,8 +2,11 @@ import React from "react";
 import "./Login.css";
 import lockIcon from './lock.png';
 import personIcon from './person.png';
+import { useNavigate } from 'react-router-dom';
 
 const Login = () => {
+  const navigate = useNavigate();
+
   return (
     <div className="login-container">
       <h1 className="title">CarbonWise</h1>
@@ -28,7 +31,9 @@ const Login = () => {
           <button type="submit" className="sign-in-btn">Sign In</button>
         </form>
         <div className="divider">or</div>
-        <button className="create-account-btn">Create an Account</button>
+        <button className="create-account-btn"
+         onClick={() => navigate('/register')}
+        >Create an Account</button>
       </div>
     </div>
   );
