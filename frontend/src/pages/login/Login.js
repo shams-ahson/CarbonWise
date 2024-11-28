@@ -3,9 +3,24 @@ import "./Login.css";
 import lockIcon from './lock.png';
 import personIcon from './person.png';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import {useState} from 'react';
 
 const Login = () => {
   const navigate = useNavigate();
+  
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await axios.post('http://localhost:5001/api/auth/login', {username, password});
+      alert(response.data.message);
+    } catch(err){
+      alert(err.response?.data?.error || "An error occurred"); 
+    }
+  }
 
   return (
     <div className="login-container">
@@ -13,20 +28,22 @@ const Login = () => {
       <div className="login-box">
         <h2 className="welcome-text">Welcome!</h2>
         <p className="subtext">Please enter your login credentials.</p>
-        <form>
+        <form onSubmit={handleLogin}>
           <div className="input-group">
             <label htmlFor="username">
               <i className="username-icon"></i>
             </label>
             <img src={personIcon} alt="Username Icon" className="input-icon" />
-            <input type="text" id="username" className="username-input" placeholder="Username" />
+            <input type="text" id="username" className="username-input" placeholder="Username" value={username} 
+            onChange={(e) => setUsername(e.target.value)}/>
           </div>
           <div className="input-group">
             <label htmlFor="password">
               <i className="password-icon"></i>
             </label>
             <img src={lockIcon} alt="Password Icon" className="input-icon" />
-            <input type="password" id="password" className="password-input" placeholder="Password" />
+            <input type="password" id="password" className="password-input" placeholder="Password" value={password} 
+            onChange={(e) => setPassword(e.target.value)}/>
           </div>
           <button type="submit" className="sign-in-btn">Sign In</button>
         </form>
