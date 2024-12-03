@@ -1,0 +1,90 @@
+input {
+    background-color: #93BA85;
+    border: 2px solid #51843f;
+    border-radius: 5px;
+    font-family: 'Poppins', sans-serif;
+    width: 100%;
+}
+
+select {
+    background-color: #ddffd1;
+    border: 2px solid #93BA85;
+    border-radius: 5px;
+    font-family: 'Poppins', sans-serif;
+    width: 100%;
+}
+
+.radio-input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.radio-label {
+    display: inline-flex;
+    align-items: center;
+    cursor: pointer;
+    margin-right: 1rem;
+    font-size: 1rem;
+}
+
+.radio-label::before {
+    content: '';
+    display: inline-block;
+    width: 15px;
+    height: 15px;
+    margin-right: 10px;
+    border: 2px solid #ccc;
+    border-radius: 50%;
+    transition: 0.3s;
+    background-color: #fff;
+}
+
+.radio-input:checked + .radio-label::before {
+    background-color: #608A33;
+    border-color: #1a4809;
+}
+
+.checkbox-input {
+    position: absolute;
+    opacity: 0;
+    z-index: 1;
+    cursor: pointer;
+}
+  
+.checkbox-label {
+    display: inline-flex;
+    align-items: center;
+    cursor: pointer;
+    margin-right: 1rem;
+    font-size: 1rem;
+    position: relative;
+}
+  
+.checkbox-label::before {
+    content: '';
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    margin-right: 10px;
+    border: 2px solid #ccc;
+    border-radius: 4px;
+    background-color: #fff;
+    transition: 0.3s;
+}
+  
+.checkbox-input:checked + .checkbox-label::before {
+    background-color: #608A33;
+    border-color: #1a4809;
+}
+  
+.checkbox-input:checked + .checkbox-label::after {
+    content: '✔';
+    color: white;
+    font-size: 14px;
+    font-family: Arial, sans-serif;
+    position: absolute;
+    left: 6px;
+    top: 2px;
+}
+ 

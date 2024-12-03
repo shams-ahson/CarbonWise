@@ -1,0 +1,28 @@
+.calculator-container {
+    align-items: start;
+}
+
+.description-container {
+    max-width: 646px;
+    
+    p {
+        font-weight: 600;
+    }
+}
+
+h2 {
+    font-family: 'Lilita One', sans-serif;
+}
+
+body, p, label {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 400;
+}
+
+.section {
+    margin-bottom: 36px;
+}
+
+.question-wrapper {
+    margin-bottom: 16px;
+}
