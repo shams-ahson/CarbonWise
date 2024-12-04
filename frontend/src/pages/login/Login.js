@@ -16,9 +16,12 @@ const Login = () => {
     e.preventDefault();
     try {
       const response = await axios.post('http://localhost:5001/api/auth/login', {username, password});
+
+      localStorage.setItem('session_id', response.data.session_id);
       alert(response.data.message);
     } catch(err){
-      alert(err.response?.data?.error || "An error occurred"); 
+      console.error('Login error:', err);
+      alert("An error occurred"); 
     }
   }
 

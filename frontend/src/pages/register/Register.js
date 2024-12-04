@@ -21,6 +21,11 @@ const Register = () => {
     const handleRegistration = async (e) => {
         e.preventDefault();
 
+        if (formData.password < 8){
+            alert('Password must be at least 8 characters.')
+            return;
+        }
+
         if (formData.password !== formData.confirmPassword){
             alert('Passwords do not match!');
             return;
@@ -30,7 +35,7 @@ const Register = () => {
             const response = await axios.post('http://localhost:5001/api/auth/register', formData);
             alert(response.data.message);
         } catch(err){
-            alert("An error occurred!"); 
+            alert("An error occurred during registration!"); 
         }
     }
 
