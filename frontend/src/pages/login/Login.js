@@ -1,10 +1,10 @@
-import React from "react";
+import React, {useState} from "react";
 import "./Login.css";
 import lockIcon from './lock.png';
 import personIcon from './person.png';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import {useState} from 'react';
+import Button from "../../components/Button";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -45,12 +45,21 @@ const Login = () => {
             <input type="password" id="password" className="password-input" placeholder="Password" value={password} 
             onChange={(e) => setPassword(e.target.value)}/>
           </div>
-          <button type="submit" className="sign-in-btn">Sign In</button>
+          <Button
+            type="submit"
+            label="Register"
+            onClick={() => navigate('/calculator')}
+            variant="primary"
+            style={{ fontWeight: 200, fontSize: "30px" }}
+          />
         </form>
         <div className="divider">or</div>
-        <button className="create-account-btn"
-         onClick={() => navigate('/register')}
-        >Create an Account</button>
+        <Button
+          label="Create an Account"
+          onClick={() => navigate('/register')}
+          variant="accent"
+          style={{ fontWeight: 200, fontSize: "30px" }}
+        />
       </div>
     </div>
   );
