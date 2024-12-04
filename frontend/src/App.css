@@ -17,11 +17,17 @@ body {
   background-color: #CAD9AC;
 }
 
-h1 {
+h1, h2 {
   font-family: 'Lilita One', sans-serif;
   font-weight: 100;
   color: #608A33;
-  text-shadow: 0px 1.5px 2px rgba(0, 0, 0, 0.3); /* Text shadow */
+  text-shadow: 0px 1.5px 2px rgba(0, 0, 0, 0.3);
+}
+
+p {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 400;
+  color: #0C403B;
 }
 
 .centered-container {
@@ -29,8 +35,17 @@ h1 {
   margin-right: 64px;
   display: flex;
   flex-direction: column;
-  justify-content: top;
   align-items: center;
+
+  @media screen {
+    margin-left: 16px;
+    margin-right: 16px;
+  }
+}
+
+.vertical-center {
+  justify-content: center;
+  height: calc(100vh - 84px); /* Center content vertically on all device sizes */
 }
 
 .title {

@@ -94,28 +94,6 @@ body {
   border-color: #4a752c;
 }
 
-
-button {
-  width: 100%;
-  font-size: 2rem;
-  padding: 15px;
-  border: none;
-  border-radius: 20px;
-  margin-bottom: 15px;
-  color: #fff;
-  font-weight: bold;
-  cursor: pointer;
-}
-
-.sign-in-btn {
-  background-color: #608A33; 
-  transition: background-color 0.2s ease;
-}
-
-.sign-in-btn:hover {
-  background-color: #3d6325; 
-}
-
 .divider{
   display: flex;
   align-items: center;
@@ -133,13 +111,4 @@ button {
   height: 1px;
   background-color: #608A33;
   margin: 0 10px;
-}
-
-.create-account-btn {
-  background-color: #93BA85; 
-  transition: background-color 0.2s ease;
-}
-
-.create-account-btn:hover {
-  background-color: #d9ead1; 
 }
