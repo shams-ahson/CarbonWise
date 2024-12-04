@@ -2,8 +2,12 @@ import React from 'react';
 import './Register.css';
 import axios from 'axios';
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import Button from '../../components/Button';
 
 const Register = () => {
+    const navigate = useNavigate();
+
     const [formData, setFormData] = useState({
         username: '',
         email: '',
@@ -91,7 +95,14 @@ const Register = () => {
                     />
                 </div>
                 <div className="button-container">
-                    <button type="submit" className="register-btn">Register</button>
+                    <Button
+                        type="submit"
+                        label="Register"
+                        onClick={() => navigate('/calculator')}
+                        variant="primary"
+                        style={{ fontWeight: 200, fontSize: "30px" }}
+                        className="register-btn"
+                    />
                 </div>
             </form>
         </div>

@@ -5,7 +5,7 @@ import { styled } from '@mui/system';
 
 const Navbar = () => {
   const StyledAppBar = styled(AppBar)({
-    backgroundColor: '#608A33', // Custom AppBar background color
+    backgroundColor: '#608A33',
   });
 
   const StyledButton = styled(Button)({
@@ -21,20 +21,17 @@ const Navbar = () => {
   return (
     <StyledAppBar position="static">
       <Toolbar sx={{ padding: '10px 20px' }}>
-        <Typography variant="h4" component="div" sx={{ flexGrow: 1, fontFamily: 'Lilita One, sans-serif' }}>
+        <Typography variant="h4" component="div" sx={{ fontFamily: 'Lilita One, sans-serif' }}>
           CarbonWise
         </Typography>
-        <Box>
-          <StyledButton color="inherit" component={Link} to="/">
-            Home
-          </StyledButton>
+        <Box sx={{ ml: 'auto' }}>
           <StyledButton color="inherit" component={Link} to="/calculator">
             Calculator
           </StyledButton>
           <StyledButton color="inherit" component={Link} to="/recommendations">
             Recommendations
           </StyledButton>
-          <StyledButton color="inherit" component={Link} to="/login">
+          <StyledButton color="inherit" component={Link} to="/">
             Logout
           </StyledButton>
         </Box>
