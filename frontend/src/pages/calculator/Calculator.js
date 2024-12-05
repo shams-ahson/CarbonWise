@@ -41,7 +41,9 @@ const Calculator = () => {
               setTotalEmissions(total);
       
               console.log("Total Carbon Footprint:", total);
-      
+
+              // pass score to recommendations page for display
+              navigate('/recommendations', { state: { totalEmissions: total } });
     };
 
     const sections= [
