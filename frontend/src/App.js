@@ -4,14 +4,14 @@ import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-route
 import Navbar from './components/Navbar';
 import Home from './pages/home/Home';
 import Calculator from './pages/calculator/Calculator';
-import Recommendations from './pages/recommendations/Recommendations';
+import Dashboard from './pages/dashboard/Dashboard';
 import Login from './pages/login/Login';
 import Register from './pages/register/Register';
 
 function NavigationWrapper() {
   const location = useLocation();
 
-  const showNavbar = location.pathname === '/calculator' || location.pathname === '/recommendations';
+  const showNavbar = location.pathname === '/calculator' || location.pathname === '/dashboard';
 
   return (
     <div className="App">
@@ -27,7 +27,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/calculator" element={<Calculator />} />
-        <Route path="/recommendations" element={<Recommendations />} />
+        <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
       </Routes>

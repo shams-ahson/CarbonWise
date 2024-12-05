@@ -2,10 +2,10 @@ import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Button from '../../components/Button';
 
-const Recommendations = () => {
+const Dashboard = () => {
     const navigate = useNavigate();
     const location = useLocation();
-    const { totalEmissions } = location.state || {}; // Retrieve the state
+    const { totalEmissions } = location.state || {};
 
     return (
         <div className="centered-container">
@@ -33,4 +33,4 @@ const Recommendations = () => {
     );
 };
 
-export default Recommendations;
+export default Dashboard;
