@@ -50,7 +50,7 @@ const Login = () => {
           </div>
           <Button
             type="submit"
-            label="Register"
+            label="Submit"
             onClick={() => navigate('/calculator')}
             variant="primary"
             style={{ fontWeight: 200, fontSize: "30px" }}
