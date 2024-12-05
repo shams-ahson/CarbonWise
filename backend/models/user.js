@@ -21,6 +21,11 @@ const userSchema = new mongoose.Schema({
         minlength: [8, 'Password must be at least 8 characters long.']
         },
     
+    session_id: {
+        type: String,
+        default: null,
+    },
+    
     /*role: {
         type: String,
         enum: ['user', 'admin'],
@@ -31,6 +36,7 @@ const userSchema = new mongoose.Schema({
 // Ensures password is hashed before saving
 userSchema.pre('save', async function(next){
     if(!this.isModified('password')) return next();
+    console.log('Hashing password for:', this.username);
     this.password = await bcrypt.hash(this.password, 10);
     next();
 });
@@ -38,6 +44,12 @@ userSchema.pre('save', async function(next){
 // Compares the password to the one in the database
 userSchema.methods.comparePassword = async function(candidatePassword) {
     return bcrypt.compare(candidatePassword, this.password);   
+}
+
+// Clear session_id when logging out
+userSchema.methods.clearSession = async function() {
+    this.session_id =  null;
+    await this.save();
 }
 
 const User = mongoose.model('User', userSchema)
