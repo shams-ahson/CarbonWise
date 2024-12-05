@@ -28,8 +28,8 @@ const Navbar = () => {
           <StyledButton color="inherit" component={Link} to="/calculator">
             Calculator
           </StyledButton>
-          <StyledButton color="inherit" component={Link} to="/recommendations">
-            Recommendations
+          <StyledButton color="inherit" component={Link} to="/dashboard">
+            Dashboard
           </StyledButton>
           <StyledButton color="inherit" component={Link} to="/">
             Logout

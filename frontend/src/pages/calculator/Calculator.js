@@ -42,8 +42,8 @@ const Calculator = () => {
       
               console.log("Total Carbon Footprint:", total);
 
-              // pass score to recommendations page for display
-              navigate('/recommendations', { state: { totalEmissions: total } });
+              // pass score to dashboard page for display
+              navigate('/dashboard', { state: { totalEmissions: total } });
     };
 
     const sections= [
@@ -174,7 +174,6 @@ const Calculator = () => {
                 <Button
                     label="Submit"
                     onClick={handleSubmit}
-                    // onClick={() => navigate('/recommendations')} put as a comment temporarily so we can see the score
                     variant="primary"
                     style={{ fontSize: '20px', width: '200px', fontWeight: '200' }}
                     />
@@ -182,8 +181,7 @@ const Calculator = () => {
                     {totalEmissions !== null && (
                         <div className="total-emissions">
                             <p>Your Total Carbon Footprint: {totalEmissions.toFixed(2)} CO2 tons/year</p>
-            
-                </div>
+                        </div>
                     )}
             </form>
 
