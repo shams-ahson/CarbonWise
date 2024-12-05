@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import "./Calculator.css";
 import { useNavigate } from 'react-router-dom';
 import Button from '../../components/Button';
@@ -7,19 +8,92 @@ import Radio from '../../components/Forms/Radio';
 import Dropdown from '../../components/Forms/Dropdown';
 import Checkbox from '../../components/Forms/Checkbox';
 
+
 const Calculator = () => {
     const navigate = useNavigate();
     const [answers, setAnswers] = useState({});
+    const [quizCompleted, setQuizCompleted] = useState(false);
+
+    const getToken = () => localStorage.getItem('authToken');
+
+    useEffect(() => {
+        const checkQuizCompletion = async () => {
+            const token = getToken();
+
+            try {
+                const response = await axios.get("http://localhost:5000/api/quiz/completed", {
+                    headers: {Authorization: `Bearer ${token}`}
+                });
+
+                setQuizCompleted(response.data.completed);
+            } catch (err) {
+                console.error("Error checking quiz completion")
+            }
+        };
+
+        checkQuizCompletion();
+    }, []);
 
     const handleChange = (event) => {
         const { name, value } = event.target;
         setAnswers((prev) => ({ ...prev, [name]: value }));
     };
 
-    const handleSubmit = (event) => {
+    const handleSubmit = async (event) => {
         event.preventDefault();
         console.log(answers);
+
+        const token = getToken();
+
+        const predefinedQuestions = [
+            'address1', 'address2', 'city', 'state', 'zipcode',
+            'householdSize', 'electricity', 'naturalGas', 'fuelOil', 
+            'Propane', 'water', 'trash', 'recycle', 'vehicles', 
+            'publicTransport', 'shortFlights', 'longFlights', 
+            'diet', 'groceries', 'eatOut', 'clothes', 'electronics', 
+            'homeGoods', 'gym', 'carbonOffset', 'renewableEnergy'
+        ];
+
+        const responses = predefinedQuestions.map((question_id) => ({
+            question_id,
+            selected_option: answers[question_id] || null
+        }));
+
+        try {
+            const response = await axios.post(
+                "http://localhost:5000/api/quiz",
+                {responses, quiz_completed: true},
+                {
+                    headers: {Authorization: `Bearer ${token}`}
+                }
+            );
+            alert(response.data.message);
+            setQuizCompleted(true);  
+        } catch (err){
+            alert("Failed to submit the quiz. Please try again.")
+        }
     };
+
+    const handleRetake = async () => {
+        const token = getToken();
+    
+        try {
+          const response = await axios.post(
+            "http://localhost:5000/api/quiz/retake",
+            {},
+            {
+              headers: { Authorization: `Bearer ${token}` },
+            }
+          );
+    
+          alert(response.data.message);
+          setQuizCompleted(false);
+          setAnswers({});
+        } catch (err) {
+          console.error("Error retaking quiz:", err.response?.data || err.message);
+          alert("Failed to reset the quiz. Please try again.");
+        }
+      };
 
     const sections= [
         {
