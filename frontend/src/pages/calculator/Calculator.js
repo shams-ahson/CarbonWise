@@ -6,10 +6,19 @@ import TextInput from '../../components/Forms/TextInput';
 import Radio from '../../components/Forms/Radio';
 import Dropdown from '../../components/Forms/Dropdown';
 import Checkbox from '../../components/Forms/Checkbox';
+import {
+    calculateHouseholdEmissions,
+    calculateTransportationEmissions,
+    calculateFoodAndDietEmissions,
+    calculateLifestyleEmissions,
+} from './Calculations';
+
 
 const Calculator = () => {
     const navigate = useNavigate();
     const [answers, setAnswers] = useState({});
+    const [totalEmissions, setTotalEmissions] = useState(null);
+
 
     const handleChange = (event) => {
         const { name, value } = event.target;
@@ -19,6 +28,20 @@ const Calculator = () => {
     const handleSubmit = (event) => {
         event.preventDefault();
         console.log(answers);
+
+              // for calculating emissions
+              const household = calculateHouseholdEmissions(answers);
+              const transportation = calculateTransportationEmissions(answers);
+              const foodAndDiet = calculateFoodAndDietEmissions(answers);
+              const lifestyle = calculateLifestyleEmissions(answers);
+      
+              const total = household + transportation + foodAndDiet + lifestyle
+      
+              // total emissions score
+              setTotalEmissions(total);
+      
+              console.log("Total Carbon Footprint:", total);
+      
     };
 
     const sections= [
@@ -145,12 +168,21 @@ const Calculator = () => {
                 </div>
                 ))}
 
+
                 <Button
                     label="Submit"
-                    onClick={() => navigate('/recommendations')}
+                    onClick={handleSubmit}
+                    // onClick={() => navigate('/recommendations')} put as a comment temporarily so we can see the score
                     variant="primary"
                     style={{ fontSize: '20px', width: '200px', fontWeight: '200' }}
-                />
+                    />
+
+                    {totalEmissions !== null && (
+                        <div className="total-emissions">
+                            <p>Your Total Carbon Footprint: {totalEmissions.toFixed(2)} CO2 tons/year</p>
+            
+                </div>
+                    )}
             </form>
 
             </div>
