@@ -1,0 +1,52 @@
+.results-container {
+    align-items: start;
+    margin-left: 140px;
+    margin-right: 120px;
+    margin-bottom: 36px;
+}
+
+img {
+    display: block;
+    max-width: 100px;
+    align-items: center;
+}
+
+h1 {
+    margin-top: 36px;
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+h3 {
+    font-weight: 200;
+}
+
+.footprint-equivalent p {
+    margin-top: 20px;
+    display: flex;
+    align-items: center;
+    font-size: 16px;
+    margin-bottom: 20px;
+}
+
+.inline-footprint-image {
+    width: 40px;
+    height: auto;
+    margin: 0 5px;
+}
+
+.image-row {
+    margin-top: 20px;
+}
+
+.image-container {
+    display: flex;
+    flex-wrap: wrap; 
+    gap: 10px; 
+    margin-bottom: 36px;
+}
+
+.footprint-image {
+    width: 50px;
+    height: auto;
+}
