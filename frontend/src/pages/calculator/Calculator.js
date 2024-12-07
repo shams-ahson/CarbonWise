@@ -41,6 +41,7 @@ const Calculator = () => {
         checkQuizCompletion();
     }, []);
 
+
     const handleChange = (event) => {
         const { name, value } = event.target;
         setAnswers((prev) => ({ ...prev, [name]: value }));
@@ -115,7 +116,23 @@ const Calculator = () => {
           console.error("Error retaking quiz:", err.response?.data || err.message);
           alert("Failed to reset the quiz. Please try again.");
         }
-      };
+  
+              // for calculating emissions
+              const household = calculateHouseholdEmissions(answers);
+              const transportation = calculateTransportationEmissions(answers);
+              const foodAndDiet = calculateFoodAndDietEmissions(answers);
+              const lifestyle = calculateLifestyleEmissions(answers);
+      
+              const total = household + transportation + foodAndDiet + lifestyle
+      
+              // total emissions score
+              setTotalEmissions(total);
+      
+              console.log("Total Carbon Footprint:", total);
+
+              // pass score to dashboard page for display
+              navigate('/dashboard', { state: { totalEmissions: total } });
+    };
 
     const sections= [
         {
@@ -178,10 +195,10 @@ const Calculator = () => {
             <h1>Carbon Footprint Calculator</h1>
             <div className='calculator-container'>
 
-                <div className='description-container'>
-                    <p>Start reducing your carbon footprint by understanding your overall carbon footprint score.</p>
-                    <p>Answer a few quick questions about your daily habits, and the calculator will provide resources and recommendations based on your score!</p>
-                </div>
+            <div className='description-container'>
+                <p>Start reducing your carbon footprint by understanding your overall carbon footprint score.
+                Answer a few quick questions about your daily habits, and the calculator will provide resources and recommendations based on your score!</p>
+            </div>
 
             <form className="form-group" onSubmit={handleSubmit}>
                 {sections.map((section) => (
@@ -241,6 +258,7 @@ const Calculator = () => {
                 </div>
                 ))}
 
+
                 <Button
                     label="Submit"
                     onClick={handleSubmit}
@@ -248,10 +266,10 @@ const Calculator = () => {
                     style={{ fontSize: '20px', width: '200px', fontWeight: '200' }}
                 />
 
-                {totalEmissions !== null && (
-                    <div className="total-emissions">
-                        <p>Your Total Carbon Footprint: {totalEmissions.toFixed(2)} CO2 tons/year</p>
-                    </div>
+                    {totalEmissions !== null && (
+                        <div className="total-emissions">
+                            <p>Your Total Carbon Footprint: {totalEmissions.toFixed(2)} CO2 tons/year</p>
+                        </div>
                     )}
             </form>
 
