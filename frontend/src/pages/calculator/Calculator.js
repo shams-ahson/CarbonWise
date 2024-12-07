@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import "./Calculator.css";
 import { useNavigate } from 'react-router-dom';
 import Button from '../../components/Button';
@@ -17,7 +18,28 @@ import {
 const Calculator = () => {
     const navigate = useNavigate();
     const [answers, setAnswers] = useState({});
+    const [quizCompleted, setQuizCompleted] = useState(false);
     const [totalEmissions, setTotalEmissions] = useState(null);
+
+    const getToken = () => localStorage.getItem('authToken');
+
+    useEffect(() => {
+        const checkQuizCompletion = async () => {
+            const token = getToken();
+
+            try {
+                const response = await axios.get("http://localhost:5001/api/quiz/completed", {
+                    headers: {Authorization: `Bearer ${token}`}
+                });
+
+                setQuizCompleted(response.data.completed);
+            } catch (err) {
+                console.error("Error checking quiz completion")
+            }
+        };
+
+        checkQuizCompletion();
+    }, []);
 
 
     const handleChange = (event) => {
@@ -25,10 +47,76 @@ const Calculator = () => {
         setAnswers((prev) => ({ ...prev, [name]: value }));
     };
 
-    const handleSubmit = (event) => {
+    const handleSubmit = async (event) => {
         event.preventDefault();
         console.log(answers);
 
+        const token = getToken();
+
+        const household = calculateHouseholdEmissions(answers);
+        const transportation = calculateTransportationEmissions(answers);
+        const foodAndDiet = calculateFoodAndDietEmissions(answers);
+        const lifestyle = calculateLifestyleEmissions(answers);
+      
+        const total = household + transportation + foodAndDiet + lifestyle
+      
+        // total emissions score
+        setTotalEmissions(total);
+      
+        console.log("Total Carbon Footprint:", total);
+
+        // pass score to dashboard page for display
+        navigate('/dashboard', { state: { totalEmissions: total } });
+
+        const predefinedQuestions = [
+            'address1', 'address2', 'city', 'state', 'zipcode',
+            'householdSize', 'electricity', 'naturalGas', 'fuelOil', 
+            'Propane', 'water', 'trash', 'recycle', 'vehicles', 
+            'publicTransport', 'shortFlights', 'longFlights', 
+            'diet', 'groceries', 'eatOut', 'clothes', 'electronics', 
+            'homeGoods', 'gym', 'carbonOffset', 'renewableEnergy'
+        ];
+
+        const responses = predefinedQuestions.map((question_id) => ({
+            question_id,
+            selected_option: answers[question_id] || null
+        }));
+
+        try {
+            const response = await axios.post(
+                "http://localhost:5001/api/quiz",
+                {responses, quiz_completed: true},
+                {
+                    headers: {Authorization: `Bearer ${token}`}
+                }
+            );
+            alert(response.data.message);
+            setQuizCompleted(true);  
+        } catch (err){
+            alert("Failed to submit the quiz. Please try again.")
+        }
+    };
+
+    const handleRetake = async () => {
+        const token = getToken();
+    
+        try {
+          const response = await axios.post(
+            "http://localhost:5001/api/quiz/retake",
+            {},
+            {
+              headers: { Authorization: `Bearer ${token}` },
+            }
+          );
+    
+          alert(response.data.message);
+          setQuizCompleted(false);
+          setAnswers({});
+        } catch (err) {
+          console.error("Error retaking quiz:", err.response?.data || err.message);
+          alert("Failed to reset the quiz. Please try again.");
+        }
+  
               // for calculating emissions
               const household = calculateHouseholdEmissions(answers);
               const transportation = calculateTransportationEmissions(answers);
@@ -176,7 +264,7 @@ const Calculator = () => {
                     onClick={handleSubmit}
                     variant="primary"
                     style={{ fontSize: '20px', width: '200px', fontWeight: '200' }}
-                    />
+                />
 
                     {totalEmissions !== null && (
                         <div className="total-emissions">

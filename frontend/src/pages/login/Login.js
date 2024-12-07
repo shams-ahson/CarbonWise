@@ -17,7 +17,8 @@ const Login = () => {
     try {
       const response = await axios.post('http://localhost:5001/api/auth/login', {username, password});
 
-      localStorage.setItem('session_id', response.data.session_id);
+      const token = response.data.session_id
+      localStorage.setItem('authToken', token);
       alert(response.data.message);
     } catch(err){
       console.error('Login error:', err);

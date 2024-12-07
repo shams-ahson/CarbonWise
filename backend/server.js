@@ -1,4 +1,5 @@
 const {router: authRoutes} = require('./routes/auth');
+const quizRoutes = require('./routes/quiz_route');
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
@@ -15,6 +16,7 @@ mongoose.connect(process.env.MONGO_URI, {useNewUrlParser: true, useUnifiedTopolo
 
 
 app.use('/api/auth', authRoutes);
+app.use('/api', quizRoutes);
 
 // verify server is running
 app.get('/', (req, res) => {
