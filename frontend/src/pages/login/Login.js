@@ -27,7 +27,7 @@ const Login = () => {
 
   return (
     <div className="login-container">
-      <h1 className="title">CarbonWise</h1>
+      <h1 className="title">Log In</h1>
       <div className="login-box">
         <h2 className="welcome-text">Welcome!</h2>
         <p className="subtext">Please enter your login credentials.</p>
