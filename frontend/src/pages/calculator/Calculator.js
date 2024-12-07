@@ -19,6 +19,7 @@ const Calculator = () => {
     const navigate = useNavigate();
     const [answers, setAnswers] = useState({});
     const [quizCompleted, setQuizCompleted] = useState(false);
+    const [totalEmissions, setTotalEmissions] = useState(null);
 
     const getToken = () => localStorage.getItem('authToken');
 
@@ -27,7 +28,7 @@ const Calculator = () => {
             const token = getToken();
 
             try {
-                const response = await axios.get("http://localhost:5000/api/quiz/completed", {
+                const response = await axios.get("http://localhost:5001/api/quiz/completed", {
                     headers: {Authorization: `Bearer ${token}`}
                 });
 
@@ -39,8 +40,6 @@ const Calculator = () => {
 
         checkQuizCompletion();
     }, []);
-    const [totalEmissions, setTotalEmissions] = useState(null);
-
 
     const handleChange = (event) => {
         const { name, value } = event.target;
@@ -52,6 +51,21 @@ const Calculator = () => {
         console.log(answers);
 
         const token = getToken();
+
+        const household = calculateHouseholdEmissions(answers);
+        const transportation = calculateTransportationEmissions(answers);
+        const foodAndDiet = calculateFoodAndDietEmissions(answers);
+        const lifestyle = calculateLifestyleEmissions(answers);
+      
+        const total = household + transportation + foodAndDiet + lifestyle
+      
+        // total emissions score
+        setTotalEmissions(total);
+      
+        console.log("Total Carbon Footprint:", total);
+
+        // pass score to dashboard page for display
+        navigate('/dashboard', { state: { totalEmissions: total } });
 
         const predefinedQuestions = [
             'address1', 'address2', 'city', 'state', 'zipcode',
@@ -69,7 +83,7 @@ const Calculator = () => {
 
         try {
             const response = await axios.post(
-                "http://localhost:5000/api/quiz",
+                "http://localhost:5001/api/quiz",
                 {responses, quiz_completed: true},
                 {
                     headers: {Authorization: `Bearer ${token}`}
@@ -87,7 +101,7 @@ const Calculator = () => {
     
         try {
           const response = await axios.post(
-            "http://localhost:5000/api/quiz/retake",
+            "http://localhost:5001/api/quiz/retake",
             {},
             {
               headers: { Authorization: `Bearer ${token}` },
@@ -101,23 +115,7 @@ const Calculator = () => {
           console.error("Error retaking quiz:", err.response?.data || err.message);
           alert("Failed to reset the quiz. Please try again.");
         }
-  
-              // for calculating emissions
-              const household = calculateHouseholdEmissions(answers);
-              const transportation = calculateTransportationEmissions(answers);
-              const foodAndDiet = calculateFoodAndDietEmissions(answers);
-              const lifestyle = calculateLifestyleEmissions(answers);
-      
-              const total = household + transportation + foodAndDiet + lifestyle
-      
-              // total emissions score
-              setTotalEmissions(total);
-      
-              console.log("Total Carbon Footprint:", total);
-
-              // pass score to dashboard page for display
-              navigate('/dashboard', { state: { totalEmissions: total } });
-    };
+      };
 
     const sections= [
         {
@@ -180,10 +178,10 @@ const Calculator = () => {
             <h1>Carbon Footprint Calculator</h1>
             <div className='calculator-container'>
 
-            <div className='description-container'>
-                <p>Start reducing your carbon footprint by understanding your overall carbon footprint score.
-                Answer a few quick questions about your daily habits, and the calculator will provide resources and recommendations based on your score!</p>
-            </div>
+                <div className='description-container'>
+                    <p>Start reducing your carbon footprint by understanding your overall carbon footprint score.</p>
+                    <p>Answer a few quick questions about your daily habits, and the calculator will provide resources and recommendations based on your score!</p>
+                </div>
 
             <form className="form-group" onSubmit={handleSubmit}>
                 {sections.map((section) => (
@@ -243,18 +241,17 @@ const Calculator = () => {
                 </div>
                 ))}
 
-
                 <Button
                     label="Submit"
                     onClick={handleSubmit}
                     variant="primary"
                     style={{ fontSize: '20px', width: '200px', fontWeight: '200' }}
-                    />
+                />
 
-                    {totalEmissions !== null && (
-                        <div className="total-emissions">
-                            <p>Your Total Carbon Footprint: {totalEmissions.toFixed(2)} CO2 tons/year</p>
-                        </div>
+                {totalEmissions !== null && (
+                    <div className="total-emissions">
+                        <p>Your Total Carbon Footprint: {totalEmissions.toFixed(2)} CO2 tons/year</p>
+                    </div>
                     )}
             </form>
 

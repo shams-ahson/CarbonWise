@@ -66,7 +66,10 @@ router.post('/logout', async(req, res) => {
 
 const authenticate = async (req, res, next) => {
     const token = req.headers.authorization?.split(' ')[1];
+    console.log("Token received in authenticate middleware:", token);
+
     if(!token) {
+        console.error("No token provided");
         return res.status(401).json({message: 'No token provided.'});
     }
 

@@ -46,6 +46,7 @@ router.post('/quiz', authenticate, async(req, res) => {
             };
         });
 
+        console.log("Validated Responses:", JSON.stringify(validatedResponses, null, 2));
 
         const existingQuiz = await Quiz.findOne({user_id: req.user._id});
         if (existingQuiz && existingQuiz.quiz_completed) {
@@ -62,7 +63,7 @@ router.post('/quiz', authenticate, async(req, res) => {
 
         res.status(201).json({message: 'Quiz responses saved successfully!', quiz});
     } catch (err){
-        console.error('Error saving quiz responses');
+        console.error('Error saving quiz responses', err.message);
         res.status(500).json({error: 'Failed to save quiz responses'});
     }
 });
@@ -108,7 +109,6 @@ router.get('/quiz/:userId', authenticate, async (req, res) => {
         res.status(500).json({error: 'Failed to fetch quiz data.'})
     }
 });
-
 
 
 module.exports = router;
