@@ -22,7 +22,7 @@
   max-width: 600px;
   background-color: #dbe9bd;
   border: 6.5px solid #608A33;
-  padding: 30px 50px 40px 50px;
+  padding: 30px 50px 80px 50px;
   border-radius: 30px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
@@ -39,6 +39,10 @@
   margin-bottom: 5px;
   color: #4a752c;
   font-weight: bold;
+}
+
+.input-field:hover {
+border-color: #608a33;
 }
 
 .input-field {
@@ -68,3 +72,12 @@
   font-weight: bold;
   font-size: 1.2rem;
 }
+
+.helper-text {
+  margin-left: 8px;
+  font-size: 15px;
+  font-weight: bold;
+  color: #639044;
+  margin-top: 5px;
+}
+

@@ -1,3 +1,4 @@
+
 import React, {useState} from "react";
 import "./Login.css";
 import lockIcon from './lock.png';
@@ -11,20 +12,45 @@ const Login = () => {
   
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState(''); 
+
 
   const handleLogin = async (e) => {
     e.preventDefault();
+
+    if (!username.trim() || !password.trim()) {
+      setError('Please fill out all fields!');
+      return;
+    }
+
+    setError(''); 
+
     try {
       const response = await axios.post('http://localhost:5001/api/auth/login', {username, password});
 
       const token = response.data.session_id
       localStorage.setItem('authToken', token);
       alert(response.data.message);
+
+      navigate('/calculator');
+
     } catch(err){
-      console.error('Login error:', err);
-      alert("An error occurred"); 
+      if (err.response) {
+        const { status, data } = err.response;
+
+        if (status === 404) {
+          setError(data.error || 'User does not exist, please register.');
+        } else if (status === 401) {
+          setError(data.message || 'Incorrect password.');
+        } else {
+          setError('An error occurred. Please try again.');
+        }
+      } else {
+        console.error('Login error:', err);
+        setError('Unable to connect to the server. Please try again later.');
+      }
     }
-  }
+  };
 
   return (
     <div className="login-container">
@@ -38,7 +64,7 @@ const Login = () => {
               <i className="username-icon"></i>
             </label>
             <img src={personIcon} alt="Username Icon" className="input-icon" />
-            <input type="text" id="username" className="username-input" placeholder="Username" value={username} 
+            <input type="text" id="username" className="username-input" placeholder="Username" value={username}  
             onChange={(e) => setUsername(e.target.value)}/>
           </div>
           <div className="input-group">
@@ -49,10 +75,10 @@ const Login = () => {
             <input type="password" id="password" className="password-input" placeholder="Password" value={password} 
             onChange={(e) => setPassword(e.target.value)}/>
           </div>
+          {error && <p className="error-message">{error}</p>}
           <Button
             type="submit"
             label="Submit"
-            onClick={() => navigate('/calculator')}
             variant="primary"
             style={{ fontWeight: 200, fontSize: "30px" }}
           />
