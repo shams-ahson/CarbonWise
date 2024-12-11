@@ -41,17 +41,3 @@ router.get('/resources', async (req, res) => {
 });
 
 module.exports = router;
-
-// app.get('/getResources', async (req, res) => {
-//     try {
-//         await client.connect();
-//         const database = client.db('carbonwise');
-//         const collection = database.collection('resources');
-//         const resources = await collection.find({}).toArray();
-//         res.status(200).json(resources);
-//     } catch (error) {
-//         res.status(500).send("Error fetching resources:", error);
-//     } finally {
-//         await client.close();
-//     }
-// });

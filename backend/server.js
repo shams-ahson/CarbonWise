@@ -1,6 +1,7 @@
 const {router: authRoutes} = require('./routes/auth');
 const quizRoutes = require('./routes/quiz_route');
 const resourceRoute = require('./routes/getResources');
+const recommendationsRoute = require('./routes/recommendations');
 const bodyParser = require('body-parser');
 const express = require('express');
 const mongoose = require('mongoose');
@@ -22,6 +23,7 @@ mongoose.connect(process.env.MONGO_URI, {useNewUrlParser: true, useUnifiedTopolo
 app.use('/api/auth', authRoutes);
 app.use('/api', quizRoutes);
 app.use('/api', resourceRoute);
+app.use('/api', recommendationsRoute);
 
 // verify server is running
 app.get('/', (req, res) => {
