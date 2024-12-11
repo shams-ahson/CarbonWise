@@ -2,18 +2,24 @@ const mongoose = require('mongoose');
 
 // Define the Resource Schema
 const resourceSchema = new mongoose.Schema({
-  name: {
+    id: {
+        type: Number,
+        required: true,
+        unique: true
+        },
+    name: {
     type: String,
     required: true,
-    trim: true
+   // trim: true
   },
   description: {
     type: String,
     required: true
   },
-  ecoFriendly: {
-    type: Boolean,
-    default: false
+  eco_friendly: {
+    type: String,
+    enum: ['TRUE', 'FALSE'],
+    required: true
   },
   category: {
     type: String,
@@ -21,8 +27,7 @@ const resourceSchema = new mongoose.Schema({
     enum: [
       'Grocery Store', 
       'Clothes Market', 
-      'Bike/Walk Trail', 
-      'Biking Trail', 
+      'Bike/Walk Trail',  
       'Public Transportation'
     ]
   },
@@ -39,10 +44,10 @@ const resourceSchema = new mongoose.Schema({
       message: props => `${props.value} is not a valid URL!`
     }
   },
-  hoursOfOperation: {
+  hours_of_operation: {
     type: String
   },
-  imageUrl: {
+  image_url: {
     type: String,
     validate: {
       validator: function(v) {
@@ -55,58 +60,6 @@ const resourceSchema = new mongoose.Schema({
   timestamps: true // Adds createdAt and updatedAt fields
 });
 
-// Create a method to find resources by category
-resourceSchema.statics.findByCategory = function(category) {
-  return this.find({ category: category });
-};
-
-// Create a method to find eco-friendly resources
-resourceSchema.statics.findEcoFriendly = function() {
-  return this.find({ ecoFriendly: true });
-};
-
-// Create the model
-const Resource = mongoose.model('Resource', resourceSchema);
-
-// Function to bulk import resources from CSV
-async function importResourcesFromCSV() {
-  // You'll need to use a CSV parsing library like csv-parse
-  const fs = require('fs');
-  const csv = require('csv-parse');
-
-  const resources = [];
-  
-  fs.createReadStream('Cleaned_Resources_Table.csv')
-    .pipe(csv.parse({ columns: true, trim: true }))
-    .on('data', (row) => {
-      resources.push({
-        name: row.Name,
-        description: row.Description,
-        ecoFriendly: row.Eco_Friendly === 'yes',
-        category: row.Category,
-        address: row.Address,
-        website: row.Website,
-        hoursOfOperation: row['Hours of Operation'],
-        imageUrl: row.Image
-      });
-    })
-    .on('end', async () => {
-      try {
-        // Clear existing resources before importing
-        await Resource.deleteMany({});
-        
-        // Insert new resources
-        await Resource.insertMany(resources);
-        
-        console.log(`Imported ${resources.length} resources successfully`);
-      } catch (error) {
-        console.error('Error importing resources:', error);
-      }
-    });
-}
-
 // Export the model and import function
-module.exports = {
-  Resource,
-  importResourcesFromCSV
-};
+const Resource = mongoose.model('Resource', resourceSchema);
+module.exports = Resource;
