@@ -6,6 +6,7 @@ import personIcon from './person.png';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Button from "../../components/Button";
+import Swal from 'sweetalert2';
 
 const Login = () => {
   const navigate = useNavigate();
@@ -19,38 +20,53 @@ const Login = () => {
     e.preventDefault();
 
     if (!username.trim() || !password.trim()) {
-      setError('Please fill out all fields!');
-      return;
+        setError('Please fill out all fields!');
+        return;
     }
 
-    setError(''); 
+    setError('');
 
     try {
-      const response = await axios.post('http://localhost:5001/api/auth/login', {username, password});
+        const response = await axios.post('http://localhost:5001/api/auth/login', { username, password });
 
-      const token = response.data.session_id
-      localStorage.setItem('authToken', token);
-      alert(response.data.message);
+        const token = response.data.session_id;
+        localStorage.setItem('authToken', token);
 
-      navigate('/calculator');
+     
+        Swal.fire({
+            icon: 'success',
+            title: 'Logged in Successfully 🌍',
+            text: `Welcome back ${username}! 👣 `,
+            confirmButtonColor: '#4caf50',
+        });
 
-    } catch(err){
-      if (err.response) {
-        const { status, data } = err.response;
+        navigate('/calculator');
+    } catch (err) {
+        if (err.response) {
+            const { status, data } = err.response;
 
-        if (status === 404) {
-          setError(data.error || 'User does not exist, please register.');
-        } else if (status === 401) {
-          setError(data.message || 'Incorrect password.');
+            if (status === 404) {
+                setError(data.error || 'User does not exist, please register.');
+            } else if (status === 401) {
+                setError(data.message || 'Incorrect password.');
+            } else {
+                setError('An error occurred. Please try again.');
+            }
         } else {
-          setError('An error occurred. Please try again.');
+            console.error('Login error:', err);
+            setError('Unable to connect to the server. Please try again later.');
         }
-      } else {
-        console.error('Login error:', err);
-        setError('Unable to connect to the server. Please try again later.');
-      }
+
+  
+        Swal.fire({
+            icon: 'error',
+            title: 'Login failed',
+            text: 'Please check your credentials and try again.',
+            confirmButtonColor: '#d33',
+        });
     }
-  };
+};
+
 
   return (
     <div className="login-container">

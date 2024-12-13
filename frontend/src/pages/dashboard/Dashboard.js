@@ -52,7 +52,7 @@ const Dashboard = () => {
 
     return (
         <div className="centered-container">
-            <h1>Your Carbon Footprint Score</h1>
+            <h1 className="title-name">Your Carbon Footprint Score</h1>
             {totalEmissions !== undefined ? (
                 <div className="results-container">
                     <p>The following carbon footprint score has been calculated based on your quiz answers. The American and Global averages can be used to see how your score compares to individuals around the world.</p>

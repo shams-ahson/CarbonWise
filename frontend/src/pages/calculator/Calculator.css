@@ -4,6 +4,10 @@ html, body {
     padding: 0;
 }
 
+p{
+    font-size: 17px;
+}
+
 .calculator-container {
     display: flex;
     flex-direction: column;
@@ -43,3 +47,17 @@ body, p, label {
 .question-wrapper {
     margin-bottom: 16px;
 }
+
+.submit-container {
+    display: flex;
+    align-items: center; 
+    gap: 10px; 
+}
+
+.error-message {
+    color: red;
+    font-size: 20px;
+    margin: 0; 
+    white-space: nowrap; 
+}
+

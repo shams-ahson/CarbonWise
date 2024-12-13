@@ -3,6 +3,8 @@ import "./Register.css";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import Button from "../../components/Button";
+import Swal from "sweetalert2";
+
 
 const Register = () => {
   const navigate = useNavigate();
@@ -25,33 +27,40 @@ const Register = () => {
 
   const handleRegistration = async (e) => {
     e.preventDefault();
-
+  
    
     if (!formData.username || !formData.email || !formData.password || !formData.confirmPassword) {
       setError("All fields are required.");
       return;
     }
-
+  
     if (formData.password.length < 8) {
       setError("Password must be at least 8 characters.");
       return;
     }
-
+  
     if (formData.password !== formData.confirmPassword) {
       setError("Passwords do not match.");
       return;
     }
-
+  
     setError(""); 
-
+  
     try {
       const response = await axios.post("http://localhost:5001/api/auth/register", formData);
-
-      
-      alert(response.data.message); 
-      navigate("/login"); 
+  
+   
+      Swal.fire({
+        icon: "success",
+        title: `Welcome, ${formData.username}!`,
+        text: "Your account has been created successfully 🌱",
+        confirmButtonColor: "#4caf50",
+      }).then(() => {
+        navigate("/login"); 
+      });
+  
     } catch (err) {
-    
+      
       if (err.response) {
         setError(err.response.data.error || "An error occurred during registration.");
       } else {

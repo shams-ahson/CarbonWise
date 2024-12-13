@@ -49,3 +49,31 @@ h3 {
     width: 50px;
     height: auto;
 }
+
+.title-name{
+    font-size: 60px;
+}
+
+/* styles for arrows */
+.slick-arrow {
+    font-size: 2rem; 
+    width: 55px; 
+    height: 55px; 
+    border-radius: 50%; 
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10;
+}
+
+.slick-arrow:hover {
+    background-color: #4a752c 
+}
+
+.slick-prev {
+    left: -80px;
+}
+
+.slick-next {
+    right: -60px;
+}

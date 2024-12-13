@@ -7,6 +7,8 @@ import TextInput from '../../components/Forms/TextInput';
 import Radio from '../../components/Forms/Radio';
 import Dropdown from '../../components/Forms/Dropdown';
 import Checkbox from '../../components/Forms/Checkbox';
+import Swal from 'sweetalert2';
+
 import {
     calculateHouseholdEmissions,
     calculateTransportationEmissions,
@@ -20,6 +22,7 @@ const Calculator = () => {
     const [answers, setAnswers] = useState({});
     const [quizCompleted, setQuizCompleted] = useState(false);
     const [totalEmissions, setTotalEmissions] = useState(null);
+    const [errorMessage, setErrorMessage] = useState(''); 
 
     const getToken = () => localStorage.getItem('authToken');
 
@@ -55,57 +58,68 @@ const Calculator = () => {
             'shortFlights', 'longFlights', 'diet', 'recycle',
             'groceries', 'eatOut', 'clothes', 'electronics', 
             'homeGoods', 'gym', 'carbonOffset', 'renewableEnergy'
-        ];
-
+        ];
+    
         event.preventDefault();
-        console.log(answers);
-
+    
         const incompleteAnswers = predefinedQuestions.some(
             (question) => !answers[question] || answers[question] === 'Select value'
         );
     
         if (incompleteAnswers) {
-            alert("Please complete all fields before submitting the form.");
-            return; // Stop execution if the form is incomplete
+            setErrorMessage('Please complete all fields before submitting the form.');
+            return;
         }
-
+    
+        setErrorMessage('');
+    
         const token = getToken();
-
+    
         const household = calculateHouseholdEmissions(answers);
         const transportation = calculateTransportationEmissions(answers);
         const foodAndDiet = calculateFoodAndDietEmissions(answers);
         const lifestyle = calculateLifestyleEmissions(answers);
-      
-        const total = household + transportation + foodAndDiet + lifestyle
-      
+    
+        const total = household + transportation + foodAndDiet + lifestyle;
+    
         // total emissions score
         setTotalEmissions(total);
-      
-        console.log("Total Carbon Footprint:", total);
-
-        // pass score to dashboard page for display
+    
         navigate('/dashboard', { state: { totalEmissions: total } });
-
-
+    
         const responses = predefinedQuestions.map((question_id) => ({
             question_id,
             selected_option: answers[question_id] || null
         }));
-
+    
         try {
             const response = await axios.post(
                 "http://localhost:5001/api/quiz",
-                {responses, quiz_completed: true},
+                { responses, quiz_completed: true },
                 {
-                    headers: {Authorization: `Bearer ${token}`}
+                    headers: { Authorization: `Bearer ${token}` },
                 }
             );
-            alert(response.data.message);
-            setQuizCompleted(true);  
-        } catch (err){
-            alert("Failed to submit the quiz. Please try again.")
+    
+            Swal.fire({
+                icon: 'success',
+                title: 'Quiz Submitted Successfully! 🍃',
+                text: 'Your quiz responses have been saved.',
+                confirmButtonColor: '#4caf50',
+            });
+    
+            setQuizCompleted(true);
+    
+        } catch (err) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Submission Failed',
+                text: 'An error occurred while submitting the quiz. Please try again.',
+                confirmButtonColor: '#d33',
+            });
         }
     };
+    
 
     const handleRetake = async () => {
         const token = getToken();
@@ -202,7 +216,7 @@ const Calculator = () => {
 
     return (
         <div className='centered-container'>
-            <h1>Carbon Footprint Calculator</h1>
+            <h1 className="title-name">Carbon Footprint Calculator</h1>
             <div className='calculator-container'>
 
             <div className='description-container'>
@@ -270,13 +284,19 @@ const Calculator = () => {
                 </div>
                 ))}
 
+                <div className="submit-container">
+                    <Button
+                        label="Submit"
+                        onClick={handleSubmit}
+                        variant="primary"
+                        style={{ fontSize: '20px', width: '200px', fontWeight: '200' }}
+                    />
+                    {errorMessage && (
+                        <p className="error-message">{errorMessage}</p>
+                    )}
+                </div>
 
-                <Button
-                    label="Submit"
-                    onClick={handleSubmit}
-                    variant="primary"
-                    style={{ fontSize: '20px', width: '200px', fontWeight: '200' }}
-                />
+
 
                     {totalEmissions !== null && (
                         <div className="total-emissions">
