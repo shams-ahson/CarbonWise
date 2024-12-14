@@ -22,7 +22,21 @@ const Dashboard = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const { totalEmissions: initialEmissions } = location.state || {};
-    const [totalEmissions, setTotalEmissions] = useState(initialEmissions || null); 
+
+    const [totalEmissions, setTotalEmissions] = useState(() => {
+        const storedScore = localStorage.getItem('totalEmissions');
+        return storedScore ? parseFloat(storedScore) : initialEmissions || null;
+    });
+
+    const [quizCompleted, setQuizCompleted] = useState(() => {
+        const storedQuizStatus = localStorage.getItem('quizCompleted');
+        return storedQuizStatus === 'true'; 
+    });
+
+    const [groupedResources, setGroupedResources] = useState({});
+    const [loadingScore, setLoadingScore] = useState(!totalEmissions); 
+    const [loadingResources, setLoadingResources] = useState(true);
+
     const averageUSEmissions = 16;
     const averageGlobalEmissions = 4;
 
@@ -30,22 +44,33 @@ const Dashboard = () => {
     const averageUSEmissionsArray = Array(averageUSEmissions).fill(null);
     const averageGlobalEmissionsArray = Array(averageGlobalEmissions).fill(null);
 
-    const [groupedResources, setGroupedResources] = useState({});
-    const [loadingScore, setLoadingScore] = useState(true);
-    const [loadingResources, setLoadingResources] = useState(true);
-
     useEffect(() => {
-
-             const fetchScoreAndResources = async () => {
+        const fetchData = async () => {
             const token = localStorage.getItem('authToken');
-
-            // Fetch Score
-            if (!initialEmissions) {
+    
+            try {
+                const response = await axios.get('http://localhost:5001/api/quiz/completed', {
+                    headers: { Authorization: `Bearer ${token}` },
+                });
+                const { completed } = response.data;
+                setQuizCompleted(completed);
+                localStorage.setItem('quizCompleted', completed);
+            } catch (error) {
+                console.error('Error checking quiz completion status:', error);
+            }
+    
+           
+            const storedScore = parseFloat(localStorage.getItem('totalEmissions'));
+            if (storedScore && !totalEmissions) {
+                setTotalEmissions(storedScore);
+            } else if (!totalEmissions) {
                 try {
                     const response = await axios.get('http://localhost:5001/api/quiz/score', {
                         headers: { Authorization: `Bearer ${token}` },
                     });
-                    setTotalEmissions(response.data.score || 0);
+                    const fetchedScore = response.data.score || 0;
+                    setTotalEmissions(fetchedScore);
+                    localStorage.setItem('totalEmissions', fetchedScore);
                 } catch (error) {
                     console.error('Error fetching quiz score:', error);
                     setTotalEmissions(0);
@@ -55,8 +80,7 @@ const Dashboard = () => {
             } else {
                 setLoadingScore(false);
             }
-
-            // Fetch Resources
+    
             try {
                 const response = await axios.get('http://localhost:5001/api/resources');
                 const grouped = groupResourcesByCategory(response.data);
@@ -67,32 +91,42 @@ const Dashboard = () => {
                 setLoadingResources(false);
             }
         };
-
-        fetchScoreAndResources();
-    }, [initialEmissions]);
+    
+        fetchData();
+    }, [totalEmissions]);
+    
 
     if (loadingScore || loadingResources) return <div>Loading...</div>;
 
     return (
         <div className="centered-container">
             <h1 className="title-name">Your Carbon Footprint Score</h1>
-            {totalEmissions !== undefined ? (
+            {!quizCompleted ? ( 
+                <div>
+                    <p>Please complete the calculator quiz in order to understand your carbon footprint!</p>
+                    <Button
+                        label="Take Carbon Footprint Calculator Quiz"
+                        onClick={() => navigate('/calculator')}
+                        variant="accent"
+                        style={{ fontSize: '24px', width: '600px', fontWeight: '200' }}
+                    />
+                </div>
+            ) : (
                 <div className="results-container">
                     <p>The following carbon footprint score has been calculated based on your quiz answers. The American and Global averages can be used to see how your score compares to individuals around the world.</p>
+
                     
-                    {/* One footprint = one ton CO2 */}
                     <div className="footprint-equivalent">
                         <p>
-                            One 
-                            <img 
-                                src={footprints} 
-                                alt="Green Footprint" 
-                                className="inline-footprint-image" 
-                            /> 
+                            One
+                            <img
+                                src={footprints}
+                                alt="Green Footprint"
+                                className="inline-footprint-image"
+                            />
                             = One Ton CO₂
                         </p>
                     </div>
-
 
                     <div className="image-row">
                         <h3>Your Footprint:</h3>
@@ -107,7 +141,7 @@ const Dashboard = () => {
                                 />
                             ))}
                         </div>
-                        
+
                         <h3>Average American's Footprint:</h3>
                         <p>The average American's carbon footprint is <strong>16</strong> tons CO₂/year.</p>
                         <div className="image-container">
@@ -138,8 +172,7 @@ const Dashboard = () => {
                     <h1>Sustainability Recommendations</h1>
                     <h2>Personalized Resources Based on Your Answers</h2>
                     <p>Here are some resources from the categories you can improve in based on your quiz answers.</p>
-                    
-                    {/* will be automatically populated based on what chatgpt provides */}
+
                     <h2>Natural Trails</h2>
                     <ResourceCard
                         image_url={hinespark}
@@ -165,17 +198,6 @@ const Dashboard = () => {
                             </div>
                         ))}
                     </div>
-                </div>
-            ) : (
-                <div>
-                    <p>Please complete the calculator quiz in order to understand your carbon footprint!</p>
-                    
-                    <Button
-                        label="Take Carbon Footprint Calculator Quiz"
-                        onClick={() => navigate('/calculator')}
-                        variant="accent"
-                        style={{ fontSize: '24px', width: '600px', fontWeight: '200' }}
-                    />
                 </div>
             )}
         </div>
