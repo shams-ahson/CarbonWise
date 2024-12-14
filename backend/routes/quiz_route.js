@@ -1,14 +1,15 @@
 const express = require('express');
 const Quiz = require('../models/quiz');
-const {authenticate} = require('./auth')
+const { authenticate } = require('./auth');
 const router = express.Router();
 
-router.post('/quiz', authenticate, async(req, res) => {
+// Save quiz responses
+router.post('/quiz', authenticate, async (req, res) => {
     console.log("Authenticated user:", req.user);
     console.log("Request body:", req.body); 
     try {
         const { responses, quiz_completed } = req.body;
-        
+
         const predefinedQuestions = [
             { id: 'address1', label: 'Address Line 1' },
             { id: 'address2', label: 'Address Line 2' },
@@ -48,9 +49,9 @@ router.post('/quiz', authenticate, async(req, res) => {
 
         console.log("Validated Responses:", JSON.stringify(validatedResponses, null, 2));
 
-        const existingQuiz = await Quiz.findOne({user_id: req.user._id});
+        const existingQuiz = await Quiz.findOne({ user_id: req.user._id });
         if (existingQuiz && existingQuiz.quiz_completed) {
-            return res.status(400).json({message: 'You have already completed the quiz.'});
+            return res.status(400).json({ message: 'You have already completed the quiz.' });
         }
 
         const quiz = new Quiz({
@@ -61,54 +62,71 @@ router.post('/quiz', authenticate, async(req, res) => {
 
         await quiz.save();
 
-        res.status(201).json({message: 'Quiz responses saved successfully!', quiz});
-    } catch (err){
+        res.status(201).json({ message: 'Quiz responses saved successfully!', quiz });
+    } catch (err) {
         console.error('Error saving quiz responses', err.message);
-        res.status(500).json({error: 'Failed to save quiz responses'});
+        res.status(500).json({ error: 'Failed to save quiz responses' });
     }
 });
 
-router.get('/quiz/completed/', authenticate, async (req, res) => {
-    try{
-        const quiz = await Quiz.findOne({user_id: req.user._id});
+// Check quiz completion status
+router.get('/quiz/completed', authenticate, async (req, res) => {
+    try {
+        const quiz = await Quiz.findOne({ user_id: req.user._id });
 
         if (quiz && quiz.quiz_completed) {
-            return res.status(200).json({completed: true, quiz});
+            return res.status(200).json({ completed: true, quiz });
         }
 
-        res.status(200).json({completed: false});
+        res.status(200).json({ completed: false });
     } catch (err) {
         console.error('Error checking quiz completion:', err);
-        res.status(500).json({error: 'Failed to check quiz completion.'})
+        res.status(500).json({ error: 'Failed to check quiz completion.' });
     }
 });
 
+// Retake quiz
 router.post('/quiz/retake', authenticate, async (req, res) => {
-    try{
-        await Quiz.deleteMany({user_id: req.user._id});
+    try {
+        await Quiz.deleteMany({ user_id: req.user._id });
 
-        res.status(200).json({message: 'You can now retake the quiz.'});
-    } catch(err) {
+        res.status(200).json({ message: 'You can now retake the quiz.' });
+    } catch (err) {
         console.error('Error allowing quiz retake');
-        res.status(500).json({ error: 'Failed to allow quiz retake'})
+        res.status(500).json({ error: 'Failed to allow quiz retake' });
     }
 });
 
+// Fetch quiz data for a user
 router.get('/quiz/:userId', authenticate, async (req, res) => {
-
     try {
-        const userQuizzes = await Quiz.find({user_id: req.params.userId});
+        const userQuizzes = await Quiz.find({ user_id: req.params.userId });
 
-        if(!userQuizzes || userQuizzes.length === 0){
-            return res.status(404).json({error: 'No quiz data found for this user.'})
+        if (!userQuizzes || userQuizzes.length === 0) {
+            return res.status(404).json({ error: 'No quiz data found for this user.' });
         }
 
         res.status(200).json(userQuizzes);
     } catch (err) {
         console.error("Error fetching quiz data");
-        res.status(500).json({error: 'Failed to fetch quiz data.'})
+        res.status(500).json({ error: 'Failed to fetch quiz data.' });
     }
 });
 
+// Fetch quiz results for logged-in user
+router.get('/quiz/results', authenticate, async (req, res) => {
+    try {
+        const quiz = await Quiz.findOne({ user_id: req.user._id });
+
+        if (!quiz) {
+            return res.status(404).json({ message: 'No quiz results found for this user.' });
+        }
+
+        res.status(200).json({ quiz });
+    } catch (err) {
+        console.error('Error fetching quiz results:', err);
+        res.status(500).json({ error: 'Failed to fetch quiz results.' });
+    }
+});
 
 module.exports = router;

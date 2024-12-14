@@ -1,10 +1,9 @@
-
-import React, {useState} from "react";
+import React, { useState } from "react";
 import "./Login.css";
 import lockIcon from './lock.png';
 import personIcon from './person.png';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import axios from 'axios'; // Keeping hardcoded URL
 import Button from "../../components/Button";
 import Swal from 'sweetalert2';
 
@@ -14,7 +13,6 @@ const Login = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState(''); 
-
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -27,12 +25,16 @@ const Login = () => {
     setError('');
 
     try {
-        const response = await axios.post('http://localhost:5001/api/auth/login', { username, password });
+        const response = await axios.post('http://localhost:5001/api/auth/login', { username, password }); // Hardcoded URL
 
         const token = response.data.session_id;
-        localStorage.setItem('authToken', token);
+        const quizCompleted = response.data.quiz_completed;
 
-     
+        // Store the session token and quiz status in local storage
+        localStorage.setItem('authToken', token);
+        localStorage.setItem('quizCompleted', quizCompleted);
+
+        // Display success notification
         Swal.fire({
             icon: 'success',
             title: 'Logged in Successfully 🌍',
@@ -40,8 +42,14 @@ const Login = () => {
             confirmButtonColor: '#4caf50',
         });
 
-        navigate('/calculator');
+        // Navigate based on quiz completion status
+        if (quizCompleted) {
+            navigate('/dashboard');
+        } else {
+            navigate('/calculator'); // Redirect to quiz page
+        }
     } catch (err) {
+        // Handle errors from backend responses
         if (err.response) {
             const { status, data } = err.response;
 
@@ -53,11 +61,12 @@ const Login = () => {
                 setError('An error occurred. Please try again.');
             }
         } else {
+            // Handle errors if the backend is unreachable
             console.error('Login error:', err);
             setError('Unable to connect to the server. Please try again later.');
         }
 
-  
+        // Display failure notification
         Swal.fire({
             icon: 'error',
             title: 'Login failed',
@@ -65,8 +74,7 @@ const Login = () => {
             confirmButtonColor: '#d33',
         });
     }
-};
-
+  };
 
   return (
     <div className="login-container">
@@ -80,16 +88,28 @@ const Login = () => {
               <i className="username-icon"></i>
             </label>
             <img src={personIcon} alt="Username Icon" className="input-icon" />
-            <input type="text" id="username" className="username-input" placeholder="Username" value={username}  
-            onChange={(e) => setUsername(e.target.value)}/>
+            <input
+              type="text"
+              id="username"
+              className="username-input"
+              placeholder="Username"
+              value={username}  
+              onChange={(e) => setUsername(e.target.value)}
+            />
           </div>
           <div className="input-group">
             <label htmlFor="password">
               <i className="password-icon"></i>
             </label>
             <img src={lockIcon} alt="Password Icon" className="input-icon" />
-            <input type="password" id="password" className="password-input" placeholder="Password" value={password} 
-            onChange={(e) => setPassword(e.target.value)}/>
+            <input
+              type="password"
+              id="password"
+              className="password-input"
+              placeholder="Password"
+              value={password} 
+              onChange={(e) => setPassword(e.target.value)}
+            />
           </div>
           {error && <p className="error-message">{error}</p>}
           <Button
