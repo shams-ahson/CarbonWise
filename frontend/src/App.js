@@ -12,7 +12,10 @@ import Admin from './pages/admin/Admin';
 function NavigationWrapper() {
   const location = useLocation();
 
-  const showNavbar = location.pathname === '/calculator' || location.pathname === '/dashboard' || location.pathname === '/admin';
+  const showNavbar = 
+  location.pathname === '/calculator' || 
+  location.pathname === '/dashboard' || 
+  location.pathname === '/admin';
 
   return (
     <div className="App">

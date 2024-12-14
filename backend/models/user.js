@@ -26,11 +26,11 @@ const userSchema = new mongoose.Schema({
         default: null,
     },
     
-    /*role: {
+    role: {
         type: String,
         enum: ['user', 'admin'],
         default: 'user'
-    }*/
+    }
 });
 
 // Ensures password is hashed before saving

@@ -17,7 +17,7 @@ const quizSchema = new mongoose.Schema({
 
             selected_option: {
             type: mongoose.Schema.Types.Mixed,
-            required: true
+            default: null,
             },
 
             _id: false
@@ -32,6 +32,11 @@ const quizSchema = new mongoose.Schema({
     quiz_completed: {
         type: Boolean,
         default: false
+    },
+
+    score: {
+        type: Number,
+        required: true
     },
     
 });

@@ -62,9 +62,10 @@ const Calculator = () => {
     
         event.preventDefault();
     
-        const incompleteAnswers = predefinedQuestions.some(
-            (question) => !answers[question] || answers[question] === 'Select value'
-        );
+        const incompleteAnswers = predefinedQuestions
+            .filter((question) => question !== 'address2')
+            .some((question) => !answers[question] || answers[question] === 'Select value');
+
     
         if (incompleteAnswers) {
             setErrorMessage('Please complete all fields before submitting the form.');
@@ -95,7 +96,7 @@ const Calculator = () => {
         try {
             const response = await axios.post(
                 "http://localhost:5001/api/quiz",
-                { responses, quiz_completed: true },
+                { responses, quiz_completed: true, score: total },
                 {
                     headers: { Authorization: `Bearer ${token}` },
                 }
@@ -121,49 +122,12 @@ const Calculator = () => {
     };
     
 
-    const handleRetake = async () => {
-        const token = getToken();
-    
-        try {
-          const response = await axios.post(
-            "http://localhost:5001/api/quiz/retake",
-            {},
-            {
-              headers: { Authorization: `Bearer ${token}` },
-            }
-          );
-    
-          alert(response.data.message);
-          setQuizCompleted(false);
-          setAnswers({});
-        } catch (err) {
-          console.error("Error retaking quiz:", err.response?.data || err.message);
-          alert("Failed to reset the quiz. Please try again.");
-        }
-  
-              // for calculating emissions
-              const household = calculateHouseholdEmissions(answers);
-              const transportation = calculateTransportationEmissions(answers);
-              const foodAndDiet = calculateFoodAndDietEmissions(answers);
-              const lifestyle = calculateLifestyleEmissions(answers);
-      
-              const total = household + transportation + foodAndDiet + lifestyle
-      
-              // total emissions score
-              setTotalEmissions(total);
-      
-              console.log("Total Carbon Footprint:", total);
-
-              // pass score to dashboard page for display
-              navigate('/dashboard', { state: { totalEmissions: total } });
-    };
-
     const sections= [
         {
             header: "General",
             questions: [
                 { id: 'address1', label: 'Address Line 1', type: 'text'},
-                { id: 'address2', label: 'Address Line 2', type: 'text'},
+                { id: 'address2', label: 'Address Line 2 (Optional)', type: 'text', },
                 { id: 'city', label: 'City', type: 'text' },
                 { id: 'state', label: 'State', type: 'text' },
                 { id: 'zipcode', label: 'Zip Code', type: 'text' },

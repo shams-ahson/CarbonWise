@@ -21,7 +21,8 @@ const groupResourcesByCategory = (resources) => {
 const Dashboard = () => {
     const navigate = useNavigate();
     const location = useLocation();
-    const { totalEmissions } = location.state || {};
+    const { totalEmissions: initialEmissions } = location.state || {};
+    const [totalEmissions, setTotalEmissions] = useState(initialEmissions || null); 
     const averageUSEmissions = 16;
     const averageGlobalEmissions = 4;
 
@@ -30,10 +31,32 @@ const Dashboard = () => {
     const averageGlobalEmissionsArray = Array(averageGlobalEmissions).fill(null);
 
     const [groupedResources, setGroupedResources] = useState({});
-    const [loading, setLoading] = useState(true);
+    const [loadingScore, setLoadingScore] = useState(true);
+    const [loadingResources, setLoadingResources] = useState(true);
 
     useEffect(() => {
-        const fetchResources = async () => {
+
+             const fetchScoreAndResources = async () => {
+            const token = localStorage.getItem('authToken');
+
+            // Fetch Score
+            if (!initialEmissions) {
+                try {
+                    const response = await axios.get('http://localhost:5001/api/quiz/score', {
+                        headers: { Authorization: `Bearer ${token}` },
+                    });
+                    setTotalEmissions(response.data.score || 0);
+                } catch (error) {
+                    console.error('Error fetching quiz score:', error);
+                    setTotalEmissions(0);
+                } finally {
+                    setLoadingScore(false);
+                }
+            } else {
+                setLoadingScore(false);
+            }
+
+            // Fetch Resources
             try {
                 const response = await axios.get('http://localhost:5001/api/resources');
                 const grouped = groupResourcesByCategory(response.data);
@@ -41,14 +64,14 @@ const Dashboard = () => {
             } catch (error) {
                 console.error('Error fetching resources:', error);
             } finally {
-                setLoading(false);
+                setLoadingResources(false);
             }
         };
 
-        fetchResources();
-    }, []);
+        fetchScoreAndResources();
+    }, [initialEmissions]);
 
-    if (loading) return <div>Loading...</div>;
+    if (loadingScore || loadingResources) return <div>Loading...</div>;
 
     return (
         <div className="centered-container">
@@ -73,7 +96,7 @@ const Dashboard = () => {
 
                     <div className="image-row">
                         <h3>Your Footprint:</h3>
-                        <p>Your total carbon footprint is <strong>{totalEmissions.toFixed(2)}</strong> tons CO₂/year.</p>
+                        <p>Your total carbon footprint is <strong>{totalEmissions !== null ? totalEmissions.toFixed(2) : 'N/A'}</strong> tons CO₂/year.</p>
                         <div className="image-container">
                             {userEmissionsArray.map((_, index) => (
                                 <img

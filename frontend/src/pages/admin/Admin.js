@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { styled, useTheme } from '@mui/material/styles';
 import { Box, Table, TableBody, TableContainer, TableHead, TableRow, TableCell, tableCellClasses, Paper, TableFooter, TablePagination, IconButton } from '@mui/material';
@@ -10,6 +10,8 @@ import Button from '../../components/Button';
 import TextInput from '../../components/Forms/TextInput';
 import Dropdown from '../../components/Forms/Dropdown';
 import './Admin.css';
+import axios from 'axios';
+
 
 function createData(name, description, eco_friendly, category, address, website, hours_of_operation, image,
 ) {
@@ -105,6 +107,33 @@ const Admin = () => {
     const [rowsPerPage, setRowsPerPage] = React.useState(5);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [answers, setAnswers] = useState({});
+    const [isAdmin, setIsAdmin] = useState(false);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchUser = async () => {
+            try {
+                const token = localStorage.getItem('authToken');
+                console.log("Token from localStorage:", token);
+                const response = await axios.get('http://localhost:5001/api/auth/me', {
+                    headers: {Authorization: `Bearer ${token}`}
+                });
+                
+                if (response.data.role === 'admin'){
+                    setIsAdmin(true);
+                }
+            }catch (error){
+                console.error('Error verifying admin role:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchUser();
+    }, []);
+
+    if (loading) return <p>Loading...</p>;
+
+    if (!isAdmin) return <p>Access denied. Admins only.</p>;
 
     const handleOpen = () => {
         setIsModalOpen(true);

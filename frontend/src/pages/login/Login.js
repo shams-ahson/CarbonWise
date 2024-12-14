@@ -29,6 +29,7 @@ const Login = () => {
 
         const token = response.data.session_id;
         const quizCompleted = response.data.quiz_completed;
+        const totalEmissions = response.data.total_emissions;
 
         // Store the session token and quiz status in local storage
         localStorage.setItem('authToken', token);
@@ -44,7 +45,7 @@ const Login = () => {
 
         // Navigate based on quiz completion status
         if (quizCompleted) {
-            navigate('/dashboard');
+            navigate('/dashboard', {state: {totalEmissions}});
         } else {
             navigate('/calculator'); // Redirect to quiz page
         }

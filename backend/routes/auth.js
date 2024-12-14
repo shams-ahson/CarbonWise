@@ -41,19 +41,24 @@ router.post('/login', async (req, res) => {
         }
 
         // Generate session token
-        const sessionToken = jwt.sign({ user_id: user._id }, JWT_SECRET, { expiresIn: '1h' });
+        const sessionToken = jwt.sign({ user_id: user._id }, JWT_SECRET, { expiresIn: '12h' });
         user.session_id = sessionToken;
         await user.save();
+        console.log("Generated Token:", sessionToken);
+        console.log("Saved session_id in DB:", user.session_id);
+
 
         // Check quiz completion status
         const quiz = await Quiz.findOne({ user_id: user._id });
         const quizCompleted = quiz ? quiz.quiz_completed : false;
+        const score = quizCompleted ? quiz.score : null;
 
         // Respond with session token and quiz status
         res.status(200).json({
             message: 'User logged in successfully!',
             session_id: sessionToken,
             quiz_completed: quizCompleted,
+            total_emissions: score,
         });
     } catch (err) {
         console.error('Error during login:', err);
@@ -101,13 +106,56 @@ const authenticate = async (req, res, next) => {
     }
 };
 
-/*
+
 const isAdmin = (req, res, next) => {
-    const userRole = req.body.role;
-    if (userRole !== "admin"){
-        return res.status(403).json({message: 'Access denied.'})
+    if (req.user.role !== "admin"){
+        return res.status(403).json({message: 'Access denied. Admins only.'})
     }
     next();
-}*/
+}
 
-module.exports = {router, authenticate};
+// Assign specific accounts admin perms
+router.put('/makeAdmin/:userId', authenticate, async(req, res) => {
+    try{
+        const {userId} = req.params;
+
+        const user = await User.findById(userId);
+        if(!user){
+            return res.status(404).json({message: 'User not found'});
+        }
+
+        user.role = 'admin';
+        await user.save();
+        console.log("Updated User Role:", user.role);
+
+        res.status(200).json({message: 'User is an admin now!'})
+    } catch (error){
+        console.error('Error promoting user to admin:', error);
+        res.status(500).json({error: 'Internal server error'});
+    }
+});
+
+router.get('/me', authenticate, async (req,res) => {
+    try {
+        const user = req.user;
+        if (!user) {
+            return res.status(404).json({message: 'User not found'});
+        }
+
+        res.status(200).json({
+            id: user._id,
+            username: user.username,
+            email: user.email,
+            role: user.role,
+        });
+    } catch (error){
+        console.error('Error fetching user data:', error);
+        res.status(500).json({error: 'Server error'});
+    }
+});
+
+router.get('/adminPage', authenticate, isAdmin, async (req, res) => {
+    res.status(200).json({message: 'This is the admin page.'})
+})
+
+module.exports = {router, authenticate, isAdmin};

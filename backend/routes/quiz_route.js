@@ -8,11 +8,11 @@ router.post('/quiz', authenticate, async (req, res) => {
     console.log("Authenticated user:", req.user);
     console.log("Request body:", req.body); 
     try {
-        const { responses, quiz_completed } = req.body;
+        const { responses, quiz_completed, score } = req.body;
 
         const predefinedQuestions = [
             { id: 'address1', label: 'Address Line 1' },
-            { id: 'address2', label: 'Address Line 2' },
+            { id: 'address2', label: 'Address Line 2' }, // make it optional
             { id: 'city', label: 'City' },
             { id: 'state', label: 'State' },
             { id: 'zipcode', label: 'Zip Code' },
@@ -41,11 +41,20 @@ router.post('/quiz', authenticate, async (req, res) => {
 
         const validatedResponses = predefinedQuestions.map((question) => {
             const userResponse = responses.find((r) => r.question_id === question.id);
+            
+            // Allow address2 to be optional
+            if (question.id === 'address2' && (!userResponse || userResponse.selected_option === '')) {
+                return {
+                    question_id: question.id,
+                    selected_option: null, 
+                };
+            }
+
             return {
                 question_id: question.id,
-                selected_option: userResponse ? userResponse.selected_option : null
+                selected_option: userResponse ? userResponse.selected_option : null,
             };
-        });
+        });     
 
         console.log("Validated Responses:", JSON.stringify(validatedResponses, null, 2));
 
@@ -57,7 +66,8 @@ router.post('/quiz', authenticate, async (req, res) => {
         const quiz = new Quiz({
             user_id: req.user._id,
             responses: validatedResponses,
-            quiz_completed
+            quiz_completed,
+            score
         });
 
         await quiz.save();
@@ -85,17 +95,16 @@ router.get('/quiz/completed', authenticate, async (req, res) => {
     }
 });
 
-// Retake quiz
-router.post('/quiz/retake', authenticate, async (req, res) => {
-    try {
-        await Quiz.deleteMany({ user_id: req.user._id });
+/*router.post('/quiz/retake', authenticate, async (req, res) => {
+    try{
+        await Quiz.deleteMany({user_id: req.user._id});
 
         res.status(200).json({ message: 'You can now retake the quiz.' });
     } catch (err) {
         console.error('Error allowing quiz retake');
         res.status(500).json({ error: 'Failed to allow quiz retake' });
     }
-});
+});*/
 
 // Fetch quiz data for a user
 router.get('/quiz/:userId', authenticate, async (req, res) => {
@@ -113,19 +122,18 @@ router.get('/quiz/:userId', authenticate, async (req, res) => {
     }
 });
 
-// Fetch quiz results for logged-in user
-router.get('/quiz/results', authenticate, async (req, res) => {
+router.get('/quiz/score', authenticate, async (req,res) => {
     try {
-        const quiz = await Quiz.findOne({ user_id: req.user._id });
+        const quiz = await Quiz.findOne({user_id: req.user._id});
 
-        if (!quiz) {
-            return res.status(404).json({ message: 'No quiz results found for this user.' });
+        if (!quiz || !quiz.quiz_completed) {
+            return res.status(404).json({message: 'Quiz not completed yet.'})
         }
 
-        res.status(200).json({ quiz });
+        res.status(200).json({score: quiz.score});
     } catch (err) {
-        console.error('Error fetching quiz results:', err);
-        res.status(500).json({ error: 'Failed to fetch quiz results.' });
+        console.error('Error fetching quiz score:', err);
+        res.status(500).json({error: 'Failed to fetch quiz score.'});
     }
 });
 
