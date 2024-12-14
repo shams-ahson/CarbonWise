@@ -92,8 +92,8 @@ const Calculator = () => {
             question_id,
             selected_option: answers[question_id] || null
         }));
-    
-        try {
+           
+        try {            
             const response = await axios.post(
                 "http://localhost:5001/api/quiz",
                 { responses, quiz_completed: true, score: total },
@@ -101,7 +101,20 @@ const Calculator = () => {
                     headers: { Authorization: `Bearer ${token}` },
                 }
             );
-    
+            console.log("Quiz Response THING:", response.data.quiz.user_id);
+            localStorage.setItem('user_id', response.data.quiz.user_id);
+            const getUserID = () => localStorage.getItem('user_id');
+            const usr = getUserID();
+            console.log("MATCH User ID" + usr);
+
+            const recsResponse = await axios.post(
+                "http://localhost:5001/api/recommendations",
+                {
+                    user_id: usr,
+                }
+            );  
+            console.log("Recommendations Response:", recsResponse.data);
+
             Swal.fire({
                 icon: 'success',
                 title: 'Quiz Submitted Successfully! 🍃',
