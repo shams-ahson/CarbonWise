@@ -6,7 +6,7 @@ const router = express.Router();
 
 const relevantQuestions = ['trash', 'vehicles', 'publicTransport', 'groceries', 'eatOut', 'clothes', 'electronics', 'homeGoods', 'gym' ];
 
-router.post('/recs', async (req, res) => {
+router.post('/recommendations', async (req, res) => {
     try {
         const {user_id} = req.body;
         console.log('User ID:', user_id);
