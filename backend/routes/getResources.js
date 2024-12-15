@@ -40,4 +40,18 @@ router.get('/resources', async (req, res) => {
     }
 });
 
+router.get('/resource-details', async (req, res) => {
+    const {names} = req.query;
+    if (!names){
+        return res.status(400).json({error: 'Missing required fields.'});
+    }
+    try {
+        const resourceNames = names.split(',');
+        const resources = await Resource.find({name: {$in: resourceNames}});
+        res.json(resources);
+    } catch(err) {
+        console.error('err fetching resources:', err.message);
+        res.status(500).json({error: 'failed to fetch resources'});
+    }
+});
 module.exports = router;
