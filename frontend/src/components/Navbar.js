@@ -9,8 +9,6 @@ const Navbar = () => {
     backgroundColor: '#608A33',
   });
 
-  const [isAdmin, setIsAdmin] = useState(false);
-
   const StyledButton = styled(Button)({
     margin: '0 10px',
     textTransform: 'none',
@@ -21,6 +19,9 @@ const Navbar = () => {
     fontSize: '20px',
   });
 
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [quizCompleted, setQuizCompleted] = useState(localStorage.getItem('quizCompleted') === 'true');
+
   useEffect(() => {
     const fetchUserRole = async () => {
       const token = localStorage.getItem('authToken');
@@ -30,15 +31,26 @@ const Navbar = () => {
         const response = await axios.get('http://localhost:5001/api/auth/me', {
           headers: { Authorization: `Bearer ${token}` },
         });
-        if (response.data.role === 'admin') {
-          setIsAdmin(true);
-        }
+        setIsAdmin(response.data.role === 'admin');
       } catch (error) {
         console.error('Error fetching user role:', error);
       }
     };
 
     fetchUserRole();
+
+   
+    const handleStorageChange = () => {
+      const quizStatus = localStorage.getItem('quizCompleted') === 'true';
+      console.log('Storage event triggered. quizCompleted =', quizStatus);
+      setQuizCompleted(quizStatus);
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+    };
   }, []);
 
   return (
@@ -48,9 +60,11 @@ const Navbar = () => {
           CarbonWise
         </Typography>
         <Box sx={{ ml: 'auto' }}>
-          <StyledButton color="inherit" component={Link} to="/calculator">
-            Calculator
-          </StyledButton>
+          {!quizCompleted && (
+            <StyledButton color="inherit" component={Link} to="/calculator">
+              Calculator
+            </StyledButton>
+          )}
           <StyledButton color="inherit" component={Link} to="/dashboard">
             Dashboard
           </StyledButton>

@@ -16,13 +16,12 @@ import {
     calculateLifestyleEmissions,
 } from './Calculations';
 
-
 const Calculator = () => {
     const navigate = useNavigate();
     const [answers, setAnswers] = useState({});
     const [quizCompleted, setQuizCompleted] = useState(false);
     const [totalEmissions, setTotalEmissions] = useState(null);
-    const [errorMessage, setErrorMessage] = useState(''); 
+    const [errorMessage, setErrorMessage] = useState('');
 
     const getToken = () => localStorage.getItem('authToken');
 
@@ -32,18 +31,21 @@ const Calculator = () => {
 
             try {
                 const response = await axios.get("http://localhost:5001/api/quiz/completed", {
-                    headers: {Authorization: `Bearer ${token}`}
+                    headers: { Authorization: `Bearer ${token}` },
                 });
 
-                setQuizCompleted(response.data.completed);
+                if (response.data.completed) {
+                    setQuizCompleted(true);
+                    localStorage.setItem('quizCompleted', 'true'); 
+                    navigate('/dashboard'); 
+                }
             } catch (err) {
-                console.error("Error checking quiz completion")
+                console.error("Error checking quiz completion:", err);
             }
         };
 
         checkQuizCompletion();
-    }, []);
-
+    }, [navigate]);
 
     const handleChange = (event) => {
         const { name, value } = event.target;
@@ -51,21 +53,20 @@ const Calculator = () => {
     };
 
     const handleSubmit = async (event) => {
+        event.preventDefault();
+    
         const predefinedQuestions = [
-            'address1', 'address2', 'city', 'state', 'zipcode', 
+            'address1', 'address2', 'city', 'state', 'zipcode',
             'householdSize', 'electricity', 'naturalGas', 'fuelOil',
             'Propane', 'water', 'trash', 'vehicles', 'publicTransport',
             'shortFlights', 'longFlights', 'diet', 'recycle',
-            'groceries', 'eatOut', 'clothes', 'electronics', 
+            'groceries', 'eatOut', 'clothes', 'electronics',
             'homeGoods', 'gym', 'carbonOffset', 'renewableEnergy'
-        ];
-    
-        event.preventDefault();
+        ];
     
         const incompleteAnswers = predefinedQuestions
-            .filter((question) => question !== 'address2')
+            .filter((question) => question !== 'address2') 
             .some((question) => !answers[question] || answers[question] === 'Select value');
-
     
         if (incompleteAnswers) {
             setErrorMessage('Please complete all fields before submitting the form.');
@@ -83,23 +84,18 @@ const Calculator = () => {
     
         const total = household + transportation + foodAndDiet + lifestyle;
     
-        // total emissions score
         setTotalEmissions(total);
-    
-        navigate('/dashboard', { state: { totalEmissions: total } });
     
         const responses = predefinedQuestions.map((question_id) => ({
             question_id,
-            selected_option: answers[question_id] || null
+            selected_option: answers[question_id] || null,
         }));
            
         try {            
             const response = await axios.post(
                 "http://localhost:5001/api/quiz",
                 { responses, quiz_completed: true, score: total },
-                {
-                    headers: { Authorization: `Bearer ${token}` },
-                }
+                { headers: { Authorization: `Bearer ${token}` } }
             );
             console.log("Quiz Response THING:", response.data.quiz.user_id);
             localStorage.setItem('user_id', response.data.quiz.user_id);
@@ -123,7 +119,11 @@ const Calculator = () => {
             });
     
             setQuizCompleted(true);
+            localStorage.setItem('quizCompleted', 'true');
     
+            window.dispatchEvent(new Event('storage'));
+    
+            navigate('/dashboard', { state: { totalEmissions: total } });
         } catch (err) {
             Swal.fire({
                 icon: 'error',
@@ -134,7 +134,7 @@ const Calculator = () => {
         }
     };
     
-
+    
     const sections= [
         {
             header: "General",

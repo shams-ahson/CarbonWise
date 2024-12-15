@@ -3,7 +3,7 @@ const Quiz = require('../models/quiz');
 const { authenticate } = require('./auth');
 const router = express.Router();
 
-// Save quiz responses
+
 router.post('/quiz', authenticate, async (req, res) => {
     console.log("Authenticated user:", req.user);
     console.log("Request body:", req.body); 
@@ -82,18 +82,14 @@ router.post('/quiz', authenticate, async (req, res) => {
 // Check quiz completion status
 router.get('/quiz/completed', authenticate, async (req, res) => {
     try {
-        const quiz = await Quiz.findOne({ user_id: req.user._id });
-
-        if (quiz && quiz.quiz_completed) {
-            return res.status(200).json({ completed: true, quiz });
-        }
-
-        res.status(200).json({ completed: false });
+      const quiz = await Quiz.findOne({ user_id: req.user._id });
+      res.status(200).json({ completed: quiz?.quiz_completed || false });
     } catch (err) {
-        console.error('Error checking quiz completion:', err);
-        res.status(500).json({ error: 'Failed to check quiz completion.' });
+      res.status(500).json({ error: 'Failed to check quiz completion.' });
     }
-});
+  });
+  
+  
 
 /*router.post('/quiz/retake', authenticate, async (req, res) => {
     try{
