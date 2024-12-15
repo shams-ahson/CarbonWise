@@ -109,7 +109,8 @@ const Calculator = () => {
                     user_id: usr,
                 }
             );  
-            console.log("Recommendations Response:", recsResponse.data);
+            console.log("Recommendations Response:", recsResponse.data.aiResponse);
+            localStorage.setItem('recommendations', recsResponse.data.aiResponse);
 
             Swal.fire({
                 icon: 'success',

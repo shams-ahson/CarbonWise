@@ -8,27 +8,15 @@ import ResourceCard from '../../components/Card';
 import hinespark from './hinespark.jpg';
 import "./Dashboard.css";
 
-const aiResponse = `Based on your responses, here are some suggestions:
-Lapeer Park (Bike/Walk Trail): Explore Lapeer Park to reduce vehicle usage...
-Ford Field Park (Bike/Walk Trail): Explore Ford Field Park to reduce vehicle usage...
-UM-Dearborn Shuttle (Public Transportation): Reduce your carbon footprint...
-SMART Bus (Public Transportation): Reduce your carbon footprint...
-SMART offers the FAST (Frequent Affordable Safe Transit): FAST bus lines...
-Westborn Market (Grocery Store): Visit Westborn Market for fresh produce...`;
-
 const parseAIrecommendations = (aiResponse) => {
     const resourceRegex = /([a-zA-Z0-9\s'-]+)\s\((Bike\/Walk Trail|Public Transportation|Clothes Market|Grocery Store)\)/g;
     const rec_resources = []
     let match;
     while((match = resourceRegex.exec(aiResponse)) !== null) {
-        //rec_resources.push(match[1]);
-        //console.log(`MATCH: ${match}`);
         const resourceName = match[1].trim();
         const resourceCategory = match[2].trim();
         rec_resources.push({ name: resourceName, category: resourceCategory });
-        //console.log(`RESOURCE NAME: ${rec_resources}`);
     }
-    //console.log(`RECOMMENDED RESOURCES: ${rec_resources}`);
     return rec_resources
 };
 
@@ -57,9 +45,9 @@ const Dashboard = () => {
         return storedQuizStatus === 'true'; 
     });
 
-    const [groupedResources, setGroupedResources] = useState({});
-    const [loadingScore, setLoadingScore] = useState(!totalEmissions); 
-    const [loadingResources, setLoadingResources] = useState(true);
+    // const [groupedResources, setGroupedResources] = useState({});
+    // const [loadingScore, setLoadingScore] = useState(!totalEmissions); 
+    // const [loadingResources, setLoadingResources] = useState(true);
 
     const averageUSEmissions = 16;
     const averageGlobalEmissions = 4;
@@ -67,7 +55,6 @@ const Dashboard = () => {
     const userEmissionsArray = totalEmissions ? Array(Math.round(totalEmissions)).fill(null) : [];
     const averageUSEmissionsArray = Array(averageUSEmissions).fill(null);
     const averageGlobalEmissionsArray = Array(averageGlobalEmissions).fill(null);
-   //const [matched, setMatchedResources] = useState([]);
     const [groupedResources, setGroupedResources] = useState({});
     const [aiResources, setAIResources] = useState({
         'Bike/Walk Trail': [],
@@ -90,16 +77,15 @@ const Dashboard = () => {
 
             const fetchScoreAndResources = async () => {
             const token = localStorage.getItem('authToken');
+            const aiResponse =  localStorage.getItem('recommendations');
 
             
             const aiResults = parseAIrecommendations(aiResponse);
             console.log(`AI RESULTS FROM PARSE: ${aiResults}`);
             const aiGrouped = groupResourcesByCategory(aiResults);
             setAIResources(aiGrouped);
-        // localStorage.setItem('aiResources', JSON.stringify(aiGrouped));
             console.log("AI RESOURCES:", aiResources);
  
-            //console.log("AI RESULTS FROM PARSE:", JSON.stringify(yourArray, null, 2));
 
             // Fetch Score
             if (!initialEmissions) {
@@ -146,26 +132,6 @@ const Dashboard = () => {
                     });
                 setMatchedResources(matchedResources);
                 localStorage.setItem('matchedResources', JSON.stringify(matchedResources));
-                //console.log("GROUPED AI:", JSON.stringify(aiGrouped, null, 2));
-                //console.log(`ALL RESOURCES: ${response.data.name}`);
-                // const matchedResources = {};
-                // Object.entries(aiResources).forEach(([category, resources]) => {
-                //     matchedResources[category] = resources.map((resource) => {
-                //         const matchedResource = response.data.find(
-                //             (r) => r.name === resource.name
-                //         );
-                //        // console.log("MATCHED RESOURCES:", matchedResource); 
-                //         //console.log("RESOURCE:", resource);
-                //         return matchedResource;                       
-                //     });     
-                //     //console.log("HELP MATCHED RESOURCES:", matchedResources);
-                //     //setMatchedResources(matchedResources);
-                // });
-                // setMatchedResources(matchedResources);
-                // localStorage.setItem('matchedResources', JSON.stringify(matchedResources));
-                // //const savedResources = localStorage.getItem('matchedResources');
-                // //setMatchedResources(JSON.parse(savedResources));
-                // console.log("FINAL! MATCHED RESOURCES:", matched);
     
                 
             } catch (error) {
@@ -183,30 +149,11 @@ const Dashboard = () => {
                 setLoadingResources(false);
             }
         };
-        //await
-        // const fetchSpecificResources = async () => {
-        //     console.log("DOUBLE CHECK", aiResources);
-        //     const resourceNames = Object.values(aiResources).flat().map((resource) => resource.name).join(',');
-        //     //const resourceNames = aiResources[category].map(resource => resource.name);            
-        //     console.log("!!!!RESOURCE NAMES:", resourceNames);
-        //     try {
-        //         const response = await axios.get('http://localhost:5001/api/resource-details', 
-        //             {params: { names: resourceNames }});
-        //         console.log("SPECIFIC RESOURCES:", response.data);
-        //         setMatchedResources(response.data);
-        //     } catch (error) {
-        //         console.error('Error fetching specific resources:', error);
-        //     }
-        // };
-        
+ 
         fetchScoreAndResources();
-        //fetchSpecificResources();
-        //fetchData();
+
         console.log("MATCHED AGAIN:", matched);
-        //console.log("MATCHED FINAL:", matched);
-       // console.log("MATCHED FINAL:", JSON.stringify(matched, null, 2));
     }, [initialEmissions]);
-    //console.log("MATCHED FINAL:", JSON.stringify(matched, null, 2));
 
     if (loadingScore || loadingResources) return <div>Loading...</div>;
 
@@ -284,15 +231,7 @@ const Dashboard = () => {
                     <h2>Personalized Resources Based on Your Answers</h2>
                     <p>Here are some resources from the categories you can improve in based on your quiz answers.</p>
                     
-                    {/* will be automatically populated based on what chatgpt provides */}
-                    {/* <h2>Natural Trails</h2>
-                    <ResourceCard
-                        image_url={hinespark}
-                        name="Hines Park"
-                        description="The Hines Park Trail includes a 20-mile connection from Michigan Ave. (Dearborn) to Northville, featuring paved paths, parks, dog areas, and picnic facilities. The trail runs parallel to Edward Hines Drive and passes through scenic areas"
-                        address="123 Street, Dearborn, MI"
-                    />
-                     */}
+                    
                     <div>
                         {Object.entries(matched).map(([category, resources]) => (
                             <div key={category}>
@@ -301,14 +240,6 @@ const Dashboard = () => {
                             </div>
                         ))}
                     </div>
-{/* 
-                    <h2>Sustainable Markets</h2>
-                    <ResourceCard
-                        image_url={hinespark}
-                        name="Hines Park"
-                        description="The Hines Park Trail includes a 20-mile connection from Michigan Ave. (Dearborn) to Northville, featuring paved paths, parks, dog areas, and picnic facilities. The trail runs parallel to Edward Hines Drive and passes through scenic areas"
-                        address="123 Street, Dearborn, MI"
-                    /> */}
 
                     <h1>Additional Dearborn-Based Resources</h1>
                     <div>
