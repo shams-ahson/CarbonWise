@@ -37,8 +37,9 @@ const Dashboard = () => {
 
     const [totalEmissions, setTotalEmissions] = useState(() => {
         const storedScore = localStorage.getItem('totalEmissions');
-        return storedScore ? parseFloat(storedScore) : initialEmissions || null;
+        return storedScore ? parseFloat(storedScore) : null;
     });
+    
 
     const [quizCompleted, setQuizCompleted] = useState(() => {
         const storedQuizStatus = localStorage.getItem('quizCompleted');
@@ -74,73 +75,90 @@ const Dashboard = () => {
 
 
     useEffect(() => {
-
-            const fetchScoreAndResources = async () => {
-            const token = localStorage.getItem('authToken');
-            const aiResponse =  localStorage.getItem('recommendations');
-
-            
-            const aiResults = parseAIrecommendations(aiResponse);
-            console.log(`AI RESULTS FROM PARSE: ${aiResults}`);
-            const aiGrouped = groupResourcesByCategory(aiResults);
-            setAIResources(aiGrouped);
-            console.log("AI RESOURCES:", aiResources);
- 
-
-            // Fetch Score
-            if (!initialEmissions) {
+        const fetchScore = async () => {
+            if (totalEmissions === null || isNaN(totalEmissions)) { 
+                setLoadingScore(true);
                 try {
+                    const token = localStorage.getItem('authToken');
                     const response = await axios.get('http://localhost:5001/api/quiz/score', {
                         headers: { Authorization: `Bearer ${token}` },
                     });
                     const fetchedScore = response.data.score || 0;
-                    setTotalEmissions(fetchedScore);
-                    localStorage.setItem('totalEmissions', fetchedScore);
+    
+                    
+                    if (fetchedScore > 0) {
+                        setTotalEmissions(fetchedScore);
+                        localStorage.setItem('totalEmissions', fetchedScore);
+                    } else if (initialEmissions) {
+                        setTotalEmissions(initialEmissions); 
+                        localStorage.setItem('totalEmissions', initialEmissions); 
+                    }
                 } catch (error) {
                     console.error('Error fetching quiz score:', error);
-                    setTotalEmissions(0);
+                    if (initialEmissions) {
+                        setTotalEmissions(initialEmissions);
+                        localStorage.setItem('totalEmissions', initialEmissions);
+                    } else {
+                        setTotalEmissions(null); 
+                    }
                 } finally {
-                    setLoadingScore(false);
+                    setLoadingScore(false); 
                 }
             } else {
-                setLoadingScore(false);
+                setLoadingScore(false); 
             }
+        };
     
+        fetchScore(); 
+    }, [initialEmissions]); 
+    
+    useEffect(() => {
+        const fetchResources = async () => {
+            setLoadingResources(true);
             try {
-                const response = await axios.get('http://localhost:5001/api/resources');
-                const grouped = groupResourcesByCategory(response.data);
+                const aiResponse = localStorage.getItem('recommendations') || '';
+                const aiGrouped = aiResponse ? groupResourcesByCategory(parseAIrecommendations(aiResponse)) : {};
+    
+                const resourceResponse = await axios.get('http://localhost:5001/api/resources');
+                const grouped = groupResourcesByCategory(resourceResponse.data);
                 setGroupedResources(grouped);
-
-                const resourceNames = Object.values(aiGrouped)
-                    .flat()
-                    .map((resource) => resource.name) 
-                    .join(','); 
+    
                 
-                    const specificResourceResponse = await axios.get('http://localhost:5001/api/resource-details', {
-                        params: { names: resourceNames },
-                    });
-
+                if (Object.keys(aiGrouped).length > 0) {
+                    const resourceNames = Object.values(aiGrouped)
+                        .flat()
+                        .map((resource) => resource.name)
+                        .join(',');
+    
+                    const specificResourceResponse = await axios.get(
+                        'http://localhost:5001/api/resource-details',
+                        { params: { names: resourceNames } }
+                    );
+    
                     const matchedResources = {};
                     Object.entries(aiGrouped).forEach(([category, resources]) => {
-                        matchedResources[category] = resources.map((resource) => {
-                            let match = specificResourceResponse.data.find(r => r.name === resource.name);
-                            if (!match) {
-                                match = response.data.find(r => r.name === resource.name);
-                            }
-                            return match;
-                        }).filter(Boolean);
+                        matchedResources[category] = resources
+                            .map((resource) => {
+                                let match = specificResourceResponse.data.find((r) => r.name === resource.name);
+                                if (!match) {
+                                    match = resourceResponse.data.find((r) => r.name === resource.name);
+                                }
+                                return match;
+                            })
+                            .filter(Boolean);
                     });
-                setMatchedResources(matchedResources);
-                localStorage.setItem('matchedResources', JSON.stringify(matchedResources));
     
-                
+                    setMatchedResources(matchedResources);
+                    localStorage.setItem('matchedResources', JSON.stringify(matchedResources));
+                }
             } catch (error) {
                 console.error('Error fetching resources:', error);
+    
+                
                 const savedResources = localStorage.getItem('matchedResources');
                 if (savedResources) {
                     try {
-                        const parsedResources = JSON.parse(savedResources);
-                        setMatchedResources(parsedResources);
+                        setMatchedResources(JSON.parse(savedResources));
                     } catch (parseError) {
                         console.error('Error parsing saved resources:', parseError);
                     }
@@ -149,13 +167,10 @@ const Dashboard = () => {
                 setLoadingResources(false);
             }
         };
- 
-        fetchScoreAndResources();
-
-        console.log("MATCHED AGAIN:", matched);
-    }, [initialEmissions]);
-
-    if (loadingScore || loadingResources) return <div>Loading...</div>;
+    
+        fetchResources(); 
+    }, []); 
+    
 
     return (
         <div className="centered-container">
