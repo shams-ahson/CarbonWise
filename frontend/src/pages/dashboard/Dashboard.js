@@ -9,15 +9,18 @@ import hinespark from './hinespark.jpg';
 import "./Dashboard.css";
 
 const parseAIrecommendations = (aiResponse) => {
-    const resourceRegex = /([a-zA-Z0-9\s'-]+)\s\((Bike\/Walk Trail|Public Transportation|Clothes Market|Grocery Store)\)/g;
-    const rec_resources = []
+    const rec_resources = [];
+    const resourceRegex = /(.*?)\s\((Bike\/Walk Trail|Public Transportation|Clothes Market|Grocery Store)\)/g;
+
     let match;
-    while((match = resourceRegex.exec(aiResponse)) !== null) {
-        const resourceName = match[1].trim();
+    while ((match = resourceRegex.exec(aiResponse)) !== null) {
+        let resourceName = match[1].trim();
         const resourceCategory = match[2].trim();
+        resourceName = resourceName.replace(/\(.*?\)/g, "").trim();
         rec_resources.push({ name: resourceName, category: resourceCategory });
     }
-    return rec_resources
+    return rec_resources;
+    
 };
 
 const groupResourcesByCategory = (resources) => {
@@ -82,7 +85,7 @@ const Dashboard = () => {
 
             
             const aiResults = parseAIrecommendations(aiResponse);
-            console.log(`AI RESULTS FROM PARSE: ${aiResults}`);
+            console.log("!!!AI RESULTS FROM PARSE",  aiResults);
             const aiGrouped = groupResourcesByCategory(aiResults);
             setAIResources(aiGrouped);
             console.log("AI RESOURCES:", aiResources);
