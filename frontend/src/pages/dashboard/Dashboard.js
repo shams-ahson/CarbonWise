@@ -11,7 +11,6 @@ import "./Dashboard.css";
 const parseAIrecommendations = (aiResponse) => {
     const rec_resources = [];
     const resourceRegex = /(.*?)\s\((Bike\/Walk Trail|Public Transportation|Clothes Market|Grocery Store)\)/g;
-
     let match;
     while ((match = resourceRegex.exec(aiResponse)) !== null) {
         let resourceName = match[1].trim();
@@ -39,10 +38,14 @@ const Dashboard = () => {
     const { totalEmissions: initialEmissions } = location.state || {};
 
     const [totalEmissions, setTotalEmissions] = useState(() => {
+        if (initialEmissions) {
+            return initialEmissions;
+        }
+        
         const storedScore = localStorage.getItem('totalEmissions');
         return storedScore ? parseFloat(storedScore) : null;
     });
-    
+
 
     const [quizCompleted, setQuizCompleted] = useState(() => {
         const storedQuizStatus = localStorage.getItem('quizCompleted');
@@ -83,24 +86,25 @@ const Dashboard = () => {
             const token = localStorage.getItem('authToken');
             const aiResponse =  localStorage.getItem('recommendations');
 
-            
+
             const aiResults = parseAIrecommendations(aiResponse);
             console.log("!!!AI RESULTS FROM PARSE",  aiResults);
             const aiGrouped = groupResourcesByCategory(aiResults);
             setAIResources(aiGrouped);
             console.log("AI RESOURCES:", aiResources);
- 
+
 
             // Fetch Score
-            if (!totalEmissions) {
+            if (totalEmissions === null || isNaN(totalEmissions)) {
+                setLoadingScore(true);
                 try {
                     const token = localStorage.getItem('authToken');
                     const response = await axios.get('http://localhost:5001/api/quiz/score', {
                         headers: { Authorization: `Bearer ${token}` },
                     });
                     const fetchedScore = response.data.score || 0;
-    
-                    
+
+
                     if (fetchedScore > 0) {
                         setTotalEmissions(fetchedScore);
                         localStorage.setItem('totalEmissions', fetchedScore);
@@ -123,33 +127,33 @@ const Dashboard = () => {
                 setLoadingScore(false); 
             }
         };
-    
+
         fetchScoreAndResources(); 
-    }, [initialEmissions]); 
-    
+    }, [totalEmissions, initialEmissions]); 
+
     useEffect(() => {
         const fetchResources = async () => {
             setLoadingResources(true);
             try {
                 const aiResponse = localStorage.getItem('recommendations') || '';
                 const aiGrouped = aiResponse ? groupResourcesByCategory(parseAIrecommendations(aiResponse)) : {};
-    
+
                 const resourceResponse = await axios.get('http://localhost:5001/api/resources');
                 const grouped = groupResourcesByCategory(resourceResponse.data);
                 setGroupedResources(grouped);
-    
-                
+
+
                 if (Object.keys(aiGrouped).length > 0) {
                     const resourceNames = Object.values(aiGrouped)
                         .flat()
                         .map((resource) => resource.name)
                         .join(',');
-    
+
                     const specificResourceResponse = await axios.get(
                         'http://localhost:5001/api/resource-details',
                         { params: { names: resourceNames } }
                     );
-    
+
                     const matchedResources = {};
                     Object.entries(aiGrouped).forEach(([category, resources]) => {
                         matchedResources[category] = resources
@@ -162,14 +166,14 @@ const Dashboard = () => {
                             })
                             .filter(Boolean);
                     });
-    
+
                     setMatchedResources(matchedResources);
                     localStorage.setItem('matchedResources', JSON.stringify(matchedResources));
                 }
             } catch (error) {
                 console.error('Error fetching resources:', error);
-    
-                
+
+
                 const savedResources = localStorage.getItem('matchedResources');
                 if (savedResources) {
                     try {
@@ -182,10 +186,10 @@ const Dashboard = () => {
                 setLoadingResources(false);
             }
         };
-    
+
         fetchResources(); 
     }, []); 
-    
+
 
     return (
         <div className="centered-container">
@@ -204,7 +208,7 @@ const Dashboard = () => {
                 <div className="results-container">
                     <p>The following carbon footprint score has been calculated based on your quiz answers. The American and Global averages can be used to see how your score compares to individuals around the world.</p>
 
-                    
+
                     <div className="footprint-equivalent">
                         <p>
                             One
@@ -260,8 +264,8 @@ const Dashboard = () => {
                     <h1>Sustainability Recommendations</h1>
                     <h2>Personalized Resources Based on Your Answers</h2>
                     <p>Here are some resources from the categories you can improve in based on your quiz answers.</p>
-                    
-                    
+
+
                     <div>
                         {Object.entries(matched).map(([category, resources]) => (
                             <div key={category}>
