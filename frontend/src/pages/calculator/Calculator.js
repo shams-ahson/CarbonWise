@@ -22,9 +22,28 @@ const Calculator = () => {
     const [quizCompleted, setQuizCompleted] = useState(false);
     const [totalEmissions, setTotalEmissions] = useState(null);
     const [errorMessage, setErrorMessage] = useState('');
+    const [isLoading, setIsLoading] = useState(false); 
+
 
     const getToken = () => localStorage.getItem('authToken');
 
+   
+    useEffect(() => {
+        if (isLoading) {
+            Swal.fire({
+                html: `
+                    <div class="spinning-earth"></div>
+                    <p style="margin-top: 20px; font-size: 18px;">Processing your responses...</p>
+                `,
+                showConfirmButton: false,
+                allowOutsideClick: false,
+            });
+        } else {
+            Swal.close();
+        }
+    }, [isLoading]);
+
+   
     useEffect(() => {
         const checkQuizCompletion = async () => {
             const token = getToken();
@@ -54,6 +73,7 @@ const Calculator = () => {
 
     const handleSubmit = async (event) => {
         event.preventDefault();
+        setIsLoading(true); 
     
         const predefinedQuestions = [
             'address1', 'address2', 'city', 'state', 'zipcode',
@@ -70,6 +90,7 @@ const Calculator = () => {
     
         if (incompleteAnswers) {
             setErrorMessage('Please complete all fields before submitting the form.');
+            setIsLoading(false); 
             return;
         }
     
@@ -97,32 +118,16 @@ const Calculator = () => {
                 { responses, quiz_completed: true, score: total },
                 { headers: { Authorization: `Bearer ${token}` } }
             );
-            console.log("Quiz Response THING:", response.data.quiz.user_id);
             localStorage.setItem('user_id', response.data.quiz.user_id);
-            const getUserID = () => localStorage.getItem('user_id');
-            const usr = getUserID();
-            console.log("MATCH User ID" + usr);
-
+    
             const recsResponse = await axios.post(
                 "http://localhost:5001/api/recommendations",
-                {
-                    user_id: usr,
-                }
+                { user_id: response.data.quiz.user_id }
             );  
-            console.log("Recommendations Response:", recsResponse.data.aiResponse);
             localStorage.setItem('recommendations', recsResponse.data.aiResponse);
-
-            Swal.fire({
-                icon: 'success',
-                title: 'Quiz Submitted Successfully! 🍃',
-                text: 'Your quiz responses have been saved.',
-                confirmButtonColor: '#4caf50',
-            });
     
             setQuizCompleted(true);
             localStorage.setItem('quizCompleted', 'true');
-    
-            window.dispatchEvent(new Event('storage'));
     
             navigate('/dashboard', { state: { totalEmissions: total } });
         } catch (err) {
@@ -132,6 +137,8 @@ const Calculator = () => {
                 text: 'An error occurred while submitting the quiz. Please try again.',
                 confirmButtonColor: '#d33',
             });
+        } finally {
+            setIsLoading(false); 
         }
     };
     
@@ -273,14 +280,6 @@ const Calculator = () => {
                         <p className="error-message">{errorMessage}</p>
                     )}
                 </div>
-
-
-
-                    {totalEmissions !== null && (
-                        <div className="total-emissions">
-                            <p>Your Total Carbon Footprint: {totalEmissions.toFixed(2)} CO2 tons/year</p>
-                        </div>
-                    )}
             </form>
 
             </div>
