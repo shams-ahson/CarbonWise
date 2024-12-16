@@ -5,6 +5,9 @@ const router = express.Router();
 
 router.post('/resources', authenticate, async(req, res) => {
     try {
+
+        console.log("Request body received:", req.body);
+
         const {id, name, description, eco_friendly, category, address, website, hours_of_operation, image_url} = req.body;
         if (!id || !name || !description || !category || !eco_friendly || !address){
             return res.status(400).json({error: 'Missing required fields.'});
@@ -22,6 +25,7 @@ router.post('/resources', authenticate, async(req, res) => {
         });
 
         await resource.save();
+        console.log("Resource saved successfully:", resource);
         res.status(201).json({message: 'resource added successfully!!', resource});
     }
     catch (err) {

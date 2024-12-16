@@ -132,16 +132,17 @@ const Admin = () => {
     fetchUser();
   }, []);
 
+  const fetchResources = async () => {
+    try {
+      const response = await axios.get('http://localhost:5001/api/resources');
+      setResources(response.data); // Update state with fetched data
+    } catch (error) {
+      console.error('Error fetching resources:', error);
+    }
+  };
+
   // Fetch resources from the database
   useEffect(() => {
-    const fetchResources = async () => {
-      try {
-        const response = await axios.get('http://localhost:5001/api/resources');
-        setResources(response.data); // Update state with fetched data
-      } catch (error) {
-        console.error('Error fetching resources:', error);
-      }
-    };
     fetchResources();
   }, []);
 
@@ -173,6 +174,43 @@ const Admin = () => {
     const { name, value } = event.target;
     setAnswers((prev) => ({ ...prev, [name]: value }));
   };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+  
+    try {
+      const token = localStorage.getItem('authToken');
+      if (!token) {
+        alert('User not authenticated');
+        return;
+      }
+      const response = await axios.get('http://localhost:5001/api/resources');
+      const currentResources = response.data;
+
+      const maxId = currentResources.reduce((max, resource) => {
+        return resource.id > max ? resource.id : max;
+      }, 0);
+
+      const newResource = {
+        id: maxId + 1, 
+        ...answers,
+      };
+  
+      console.log("Submitting new resource:", newResource);
+      await axios.post('http://localhost:5001/api/resources', newResource, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      alert('Resource added successfully!');
+      setIsModalOpen(false);
+      setAnswers({});
+      fetchResources();
+    } catch (error) {
+      console.error('Error adding resource:', error.response?.data || error.message);
+      alert('Failed to add resource. Please try again.');
+    }
+  };
+   
+
 
   return (
     <div className="container">
@@ -217,13 +255,13 @@ const Admin = () => {
                 <p style={{ fontWeight: 'bold', fontSize: '24px', marginBottom: '4px' }}>
                   Add New Resource
                 </p>
-                <form className="form-group" onSubmit={handleClose}>
+                <form className="form-group" onSubmit={handleSubmit}>
                   <TextInput label="Name" name="name" onChange={handleChange} />
                   <TextInput label="Description" name="description" onChange={handleChange} />
                   <Dropdown
-                    label="Eco-Friendly"
-                    name="eco-friendly"
-                    options={['Yes', 'No']}
+                    label="Eco_Friendly"
+                    name="eco_friendly"
+                    options={['TRUE', 'FALSE']}
                     onChange={handleChange}
                   />
                   <Dropdown
@@ -240,9 +278,9 @@ const Admin = () => {
                   />
                   <TextInput label="Address" name="address" onChange={handleChange} />
                   <TextInput label="Website" name="website" onChange={handleChange} />
-                  <TextInput label="Hours of Operation" name="hours of operation" onChange={handleChange} />
-                  <TextInput label="Image Link" name="image link" onChange={handleChange} />
-                  <Button label="Submit" onClick={handleClose} variant="primary" />
+                  <TextInput label="Hours of Operation" name="hours_of_operation" onChange={handleChange} />
+                  <TextInput label="Image Link" name="image_url" onChange={handleChange} />
+                  <Button type= "submit" label="Submit" variant="primary" />
                 </form>
               </div>
             </div>
