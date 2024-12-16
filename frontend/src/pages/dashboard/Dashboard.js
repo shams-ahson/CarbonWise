@@ -63,7 +63,7 @@ const Dashboard = () => {
         'Clothes Market': [],
         'Grocery Store': []
     });
-    const [loadingScore, setLoadingScore] = useState(true);
+    const [loadingScore, setLoadingScore] = useState(!totalEmissions);
     const [loadingResources, setLoadingResources] = useState(true);
 
     const [matched, setMatchedResources] = useState({
@@ -75,9 +75,21 @@ const Dashboard = () => {
 
 
     useEffect(() => {
-        const fetchScore = async () => {
-            if (totalEmissions === null || isNaN(totalEmissions)) { 
-                setLoadingScore(true);
+
+            const fetchScoreAndResources = async () => {
+            const token = localStorage.getItem('authToken');
+            const aiResponse =  localStorage.getItem('recommendations');
+
+            
+            const aiResults = parseAIrecommendations(aiResponse);
+            console.log(`AI RESULTS FROM PARSE: ${aiResults}`);
+            const aiGrouped = groupResourcesByCategory(aiResults);
+            setAIResources(aiGrouped);
+            console.log("AI RESOURCES:", aiResources);
+ 
+
+            // Fetch Score
+            if (!totalEmissions) {
                 try {
                     const token = localStorage.getItem('authToken');
                     const response = await axios.get('http://localhost:5001/api/quiz/score', {
@@ -109,7 +121,7 @@ const Dashboard = () => {
             }
         };
     
-        fetchScore(); 
+        fetchScoreAndResources(); 
     }, [initialEmissions]); 
     
     useEffect(() => {
