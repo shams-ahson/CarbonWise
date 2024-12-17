@@ -12,8 +12,9 @@ const PORT = process.env.PORT || 5001;
 const getResources = require('./routes/getResources')
 const allowedOrigins = ['https://carbon-wise-neon.vercel.app/']
 app.use(cors({
-  origin: allowedOrigins, 
+  origin: '*', 
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
 }));
 app.use(express.json());
 app.use(bodyParser.json()); //NEW
