@@ -25,7 +25,7 @@ const Login = () => {
     setError('');
 
     try {
-        const response = await axios.post('https://carbon-wise-neon.vercel.app//api/auth/login', { username, password }); // Hardcoded URL
+        const response = await axios.post('https://carbonwise-p938.onrender.com///api/auth/login', { username, password }); // Hardcoded URL
 
         const token = response.data.session_id;
         const quizCompleted = response.data.quiz_completed;

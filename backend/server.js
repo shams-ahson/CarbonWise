@@ -10,7 +10,7 @@ require('dotenv').config();
 const app = express();
 const PORT = process.env.PORT || 10000;
 const getResources = require('./routes/getResources')
-const allowedOrigins = ['https://carbon-wise-neon.vercel.app/']
+const allowedOrigins = ['https://carbonwise-p938.onrender.com//']
 app.use(cors({
   origin: '*', 
   methods: ['GET', 'POST', 'PUT', 'DELETE'],

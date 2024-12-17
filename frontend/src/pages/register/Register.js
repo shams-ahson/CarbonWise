@@ -47,7 +47,7 @@ const Register = () => {
     setError(""); 
   
     try {
-      const response = await axios.post("https://carbon-wise-neon.vercel.app//api/auth/register", formData);
+      const response = await axios.post("https://carbonwise-p938.onrender.com///api/auth/register", formData);
   
    
       Swal.fire({
