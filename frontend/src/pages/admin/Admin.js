@@ -116,7 +116,7 @@ const Admin = () => {
     const fetchUser = async () => {
       try {
         const token = localStorage.getItem('authToken');
-        const response = await axios.get('https://carbonwise-p938.onrender.com///api/auth/me', {
+        const response = await axios.get('https://carbonwise-p938.onrender.com/api/auth/me', {
           headers: { Authorization: `Bearer ${token}` },
         });
 
@@ -134,7 +134,7 @@ const Admin = () => {
 
   const fetchResources = async () => {
     try {
-      const response = await axios.get('https://carbonwise-p938.onrender.com///api/resources');
+      const response = await axios.get('https://carbonwise-p938.onrender.com/api/resources');
       setResources(response.data); // Update state with fetched data
     } catch (error) {
       console.error('Error fetching resources:', error);
@@ -184,7 +184,7 @@ const Admin = () => {
         alert('User not authenticated');
         return;
       }
-      const response = await axios.get('https://carbonwise-p938.onrender.com///api/resources');
+      const response = await axios.get('https://carbonwise-p938.onrender.com/api/resources');
       const currentResources = response.data;
 
       const maxId = currentResources.reduce((max, resource) => {
@@ -197,7 +197,7 @@ const Admin = () => {
       };
   
       console.log("Submitting new resource:", newResource);
-      await axios.post('https://carbonwise-p938.onrender.com///api/resources', newResource, {
+      await axios.post('https://carbonwise-p938.onrender.com/api/resources', newResource, {
         headers: { Authorization: `Bearer ${token}` },
       });
       alert('Resource added successfully!');

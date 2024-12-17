@@ -49,7 +49,7 @@ const Calculator = () => {
             const token = getToken();
 
             try {
-                const response = await axios.get("https://carbonwise-p938.onrender.com///api/quiz/completed", {
+                const response = await axios.get("https://carbonwise-p938.onrender.com/api/quiz/completed", {
                     headers: { Authorization: `Bearer ${token}` },
                 });
 
@@ -114,14 +114,14 @@ const Calculator = () => {
            
         try {            
             const response = await axios.post(
-                "https://carbonwise-p938.onrender.com///api/quiz",
+                "https://carbonwise-p938.onrender.com/api/quiz",
                 { responses, quiz_completed: true, score: total },
                 { headers: { Authorization: `Bearer ${token}` } }
             );
             localStorage.setItem('user_id', response.data.quiz.user_id);
     
             const recsResponse = await axios.post(
-                "https://carbonwise-p938.onrender.com///api/recommendations",
+                "https://carbonwise-p938.onrender.com/api/recommendations",
                 { user_id: response.data.quiz.user_id }
             );  
             localStorage.setItem('recommendations', recsResponse.data.aiResponse);

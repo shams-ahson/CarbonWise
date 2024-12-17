@@ -28,7 +28,7 @@ const Navbar = () => {
       if (!token) return;
 
       try {
-        const response = await axios.get('https://carbonwise-p938.onrender.com///api/auth/me', {
+        const response = await axios.get('https://carbonwise-p938.onrender.com/api/auth/me', {
           headers: { Authorization: `Bearer ${token}` },
         });
         setIsAdmin(response.data.role === 'admin');
