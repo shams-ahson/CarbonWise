@@ -30,9 +30,9 @@ app.get('/', (req, res) => {
   res.send('backend server is running!!!! :D');
 });
 
-// start server
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-});
+// // start server
+// app.listen(PORT, () => {
+//   console.log(`Server is running on port ${PORT}`);
+// });
 
 module.exports = app;
