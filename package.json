@@ -6,6 +6,7 @@
         "build": "npm run build --prefix frontend && npm run build --prefix backend"
     },
     "dependencies": {
+        "@mui/icons-material": "^6.2.0",
         "@mui/material": "^6.2.0",
         "axios": "^1.7.9",
         "bcrypt": "^5.1.1",
