@@ -99,7 +99,7 @@ const Dashboard = () => {
                 setLoadingScore(true);
                 try {
                     const token = localStorage.getItem('authToken');
-                    const response = await axios.get('http://localhost:5001/api/quiz/score', {
+                    const response = await axios.get('https://carbon-wise-neon.vercel.app//api/quiz/score', {
                         headers: { Authorization: `Bearer ${token}` },
                     });
                     const fetchedScore = response.data.score || 0;
@@ -138,7 +138,7 @@ const Dashboard = () => {
                 const aiResponse = localStorage.getItem('recommendations') || '';
                 const aiGrouped = aiResponse ? groupResourcesByCategory(parseAIrecommendations(aiResponse)) : {};
 
-                const resourceResponse = await axios.get('http://localhost:5001/api/resources');
+                const resourceResponse = await axios.get('https://carbon-wise-neon.vercel.app//api/resources');
                 const grouped = groupResourcesByCategory(resourceResponse.data);
                 setGroupedResources(grouped);
 
@@ -150,7 +150,7 @@ const Dashboard = () => {
                         .join(',');
 
                     const specificResourceResponse = await axios.get(
-                        'http://localhost:5001/api/resource-details',
+                        'https://carbon-wise-neon.vercel.app//api/resource-details',
                         { params: { names: resourceNames } }
                     );
 

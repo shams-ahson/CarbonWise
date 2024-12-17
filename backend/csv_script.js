@@ -11,7 +11,7 @@ const addResourcesFromCSV = async () => {
         console.log(results)
       for (const resource of results) {
         try {
-          await axios.post('http://localhost:5001/api/resources', resource, {
+          await axios.post('https://carbon-wise-neon.vercel.app//api/resources', resource, {
             headers: { Authorization: `Bearer ${JWT_TOKEN}` },
           });
           console.log('Resource added:', resource.name);

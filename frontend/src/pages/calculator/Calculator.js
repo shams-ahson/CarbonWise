@@ -49,7 +49,7 @@ const Calculator = () => {
             const token = getToken();
 
             try {
-                const response = await axios.get("http://localhost:5001/api/quiz/completed", {
+                const response = await axios.get("https://carbon-wise-neon.vercel.app//api/quiz/completed", {
                     headers: { Authorization: `Bearer ${token}` },
                 });
 
@@ -114,14 +114,14 @@ const Calculator = () => {
            
         try {            
             const response = await axios.post(
-                "http://localhost:5001/api/quiz",
+                "https://carbon-wise-neon.vercel.app//api/quiz",
                 { responses, quiz_completed: true, score: total },
                 { headers: { Authorization: `Bearer ${token}` } }
             );
             localStorage.setItem('user_id', response.data.quiz.user_id);
     
             const recsResponse = await axios.post(
-                "http://localhost:5001/api/recommendations",
+                "https://carbon-wise-neon.vercel.app//api/recommendations",
                 { user_id: response.data.quiz.user_id }
             );  
             localStorage.setItem('recommendations', recsResponse.data.aiResponse);

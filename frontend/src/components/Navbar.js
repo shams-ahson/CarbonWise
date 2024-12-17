@@ -28,7 +28,7 @@ const Navbar = () => {
       if (!token) return;
 
       try {
-        const response = await axios.get('http://localhost:5001/api/auth/me', {
+        const response = await axios.get('https://carbon-wise-neon.vercel.app//api/auth/me', {
           headers: { Authorization: `Bearer ${token}` },
         });
         setIsAdmin(response.data.role === 'admin');
