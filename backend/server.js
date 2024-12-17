@@ -8,7 +8,7 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 require('dotenv').config();
 const app = express();
-const PORT = process.env.PORT || 5002;
+const PORT = process.env.PORT || 10000;
 const getResources = require('./routes/getResources')
 const allowedOrigins = ['https://carbon-wise-neon.vercel.app/']
 app.use(cors({
@@ -35,9 +35,9 @@ app.get('/', (req, res) => {
   res.send('backend server is running!!!! :D');
 });
 
-// // start server
-// app.listen(PORT, () => {
-//   console.log(`Server is running on port ${PORT}`);
-// });
+// start server
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`Server is running on port ${PORT}`);
+});
 
 module.exports = app;
